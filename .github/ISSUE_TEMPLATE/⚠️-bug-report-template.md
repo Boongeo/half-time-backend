@@ -2,7 +2,7 @@
 name: "⚠️ Bug Report Template"
 about: 버그 발생 사항을 입력해주세요.
 title: "⚠️ Bug: "
-labels: ''
+labels: BugFix
 assignees: ''
 
 ---
