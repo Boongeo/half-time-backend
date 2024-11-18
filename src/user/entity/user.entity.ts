@@ -1,7 +1,7 @@
 import { Column, Entity, OneToOne } from 'typeorm';
 import { BaseEntity } from '../../common/entity/base.entity';
 import { Account } from '../../account/entity/account.entity';
-import { Role } from '../../common/enums/role.enum';
+import { Role } from '../enums/role.enum';
 import { Mentee } from '../../mentee/entity/mentee.entity';
 import { Mentor } from '../../mentor/entity/mentor.entity';
 

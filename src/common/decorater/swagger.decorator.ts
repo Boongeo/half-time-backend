@@ -1,6 +1,7 @@
 import { applyDecorators, Type } from '@nestjs/common';
 import {
   ApiCreatedResponse,
+  ApiNoContentResponse,
   ApiOkResponse,
   getSchemaPath,
 } from '@nestjs/swagger';
@@ -9,6 +10,16 @@ import { PageResDto } from '../dto/res.dto';
 export const ApiGetResponse = <TModel extends Type<any>>(model: TModel) => {
   return applyDecorators(
     // 200 response
+    ApiOkResponse({
+      schema: {
+        allOf: [{ $ref: getSchemaPath(model) }],
+      },
+    }),
+  );
+};
+
+export const ApiUpdateResponse = <TModel extends Type<any>>(model: TModel) => {
+  return applyDecorators(
     ApiOkResponse({
       schema: {
         allOf: [{ $ref: getSchemaPath(model) }],
@@ -48,6 +59,14 @@ export const ApiGetItemsResponse = <TModel extends Type<any>>(
           },
         ],
       },
+    }),
+  );
+};
+
+export const ApiDeleteResponse = () => {
+  return applyDecorators(
+    ApiNoContentResponse({
+      description: 'Resource successfully deleted.',
     }),
   );
 };

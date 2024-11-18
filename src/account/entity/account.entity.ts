@@ -1,5 +1,5 @@
 import { Column, Entity, JoinColumn, OneToOne } from 'typeorm';
-import { Provider } from '../../common/enums/provider.enum';
+import { Provider } from '../enums/provider.enum';
 import { User } from '../../user/entity/user.entity';
 import { BaseEntity } from '../../common/entity/base.entity';
 

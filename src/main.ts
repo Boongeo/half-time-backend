@@ -4,6 +4,7 @@ import * as dotenv from 'dotenv';
 import { ConfigService } from '@nestjs/config';
 import { WinstonModule } from 'nest-winston';
 import { initializeSwagger } from './swagger.init';
+import { TransformInterceptor } from './common/interceptor/transform.interceptor';
 
 async function bootstrap() {
   const envFile =
@@ -18,6 +19,8 @@ async function bootstrap() {
   app.useLogger(WinstonModule.createLogger(configService.get('logger')));
 
   initializeSwagger(app, configService);
+
+  app.useGlobalInterceptors(new TransformInterceptor());
 
   await app.listen(process.env.PORT).then(() => {
     console.log(`Server is running on ${process.env.PORT}`);

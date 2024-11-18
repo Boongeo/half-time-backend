@@ -7,5 +7,5 @@ export class PageResDto<TData> {
   @ApiProperty({ required: true })
   size: number;
 
-  items: TData[]
+  items: TData[];
 }
