@@ -4,6 +4,15 @@ import postgresConfig from './config/postgres.config';
 import swaggerConfig from './config/swagger.config';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { WinstonModule } from 'nest-winston';
+import { UserModule } from './user/user.module';
+import { AccountModule } from './account/account.module';
+import { BoardModule } from './board/board.module';
+import { MenteeModule } from './mentee/mentee.module';
+import { MentorModule } from './mentor/mentor.module';
+import { MentorAvailabilityModule } from './mentor-availability/mentor-availability.module';
+import { MentorTechStackModule } from './mentor-tech-stack/mentor-tech-stack.module';
+import { MentoringSessionModule } from './mentoring-session/mentoring-session.module';
+import { TechStackModule } from './tech-stack/tech-stack.module';
 import loggerConfig from './config/logger.config';
 
 @Module({
@@ -23,7 +32,7 @@ import loggerConfig from './config/logger.config';
           database: configService.get('postgres.database'),
           username: configService.get('postgres.username'),
           password: configService.get('postgres.password'),
-          autoLoadEntities: true,
+          autoLoadEntities: false,
           synchronize: false,
           logging: isDev,
         };
@@ -40,6 +49,15 @@ import loggerConfig from './config/logger.config';
         };
       },
     }),
+    UserModule,
+    AccountModule,
+    BoardModule,
+    MenteeModule,
+    MentorModule,
+    MentorAvailabilityModule,
+    MentorTechStackModule,
+    MentoringSessionModule,
+    TechStackModule,
   ],
   controllers: [],
   providers: [],
