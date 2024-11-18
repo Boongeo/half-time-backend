@@ -1,4 +1,13 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Put, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Put,
+  Query,
+} from '@nestjs/common';
 import { PageReqDto } from '../common/dto/req.dto';
 import { BoardService } from './board.service';
 import { ApiExtraModels, ApiTags } from '@nestjs/swagger';

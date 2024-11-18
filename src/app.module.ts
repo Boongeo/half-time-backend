@@ -16,12 +16,14 @@ import { TechStackModule } from './tech-stack/tech-stack.module';
 import loggerConfig from './config/logger.config';
 import * as console from 'node:console';
 import { LoggerMiddleware } from './common/middleware/logger.middleware';
+import { MailModule } from './mail/mail.module';
+import mailConfig from './config/mail.config';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [postgresConfig, swaggerConfig, loggerConfig],
+      load: [postgresConfig, swaggerConfig, loggerConfig, mailConfig],
     }),
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
@@ -60,6 +62,7 @@ import { LoggerMiddleware } from './common/middleware/logger.middleware';
     MentorTechStackModule,
     MentoringSessionModule,
     TechStackModule,
+    MailModule,
   ],
   controllers: [],
   providers: [Logger],
