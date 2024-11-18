@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Logger, MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import postgresConfig from './config/postgres.config';
 import swaggerConfig from './config/swagger.config';
@@ -14,6 +14,8 @@ import { MentorTechStackModule } from './mentor-tech-stack/mentor-tech-stack.mod
 import { MentoringSessionModule } from './mentoring-session/mentoring-session.module';
 import { TechStackModule } from './tech-stack/tech-stack.module';
 import loggerConfig from './config/logger.config';
+import * as console from 'node:console';
+import { LoggerMiddleware } from './common/middleware/logger.middleware';
 
 @Module({
   imports: [
@@ -32,7 +34,7 @@ import loggerConfig from './config/logger.config';
           database: configService.get('postgres.database'),
           username: configService.get('postgres.username'),
           password: configService.get('postgres.password'),
-          autoLoadEntities: false,
+          autoLoadEntities: true,
           synchronize: false,
           logging: isDev,
         };
@@ -60,6 +62,11 @@ import loggerConfig from './config/logger.config';
     TechStackModule,
   ],
   controllers: [],
-  providers: [],
+  providers: [Logger],
+  exports: [Logger],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer): void {
+    consumer.apply(LoggerMiddleware).forRoutes('*');
+  }
+}
