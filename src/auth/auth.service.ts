@@ -1,15 +1,16 @@
-import {
-  Inject,
-  Injectable,
-  InternalServerErrorException, NotFoundException,
-} from '@nestjs/common';
+import { Inject, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { MailService } from '../mail/mail.service';
 import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Account } from './entity/account.entity';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly mailService: MailService,
+    @InjectRepository(Account)
+    private readonly accountRepository: Repository<Account>,
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
   ) {}
 
@@ -31,6 +32,17 @@ export class AuthService {
     } else {
       await this.cacheManager.del(email);
     }
+  }
+
+  async validateAccount(email: string, password: string) {
+    const account = await this.accountRepository.findOneOrFail({
+      where: { email },
+      relations: ['user'],
+    });
+    if (account && account.password === password) {
+      return account;
+    }
+    return null;
   }
 
   private generateRandomNumber() {

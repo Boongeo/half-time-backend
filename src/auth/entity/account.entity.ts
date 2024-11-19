@@ -24,6 +24,9 @@ export class Account extends BaseEntity {
   @Column({ nullable: true })
   password: string;
 
+  @Column()
+  Certified: boolean;
+
   @OneToOne(() => User, (user) => user.account)
   @JoinColumn()
   user: User;

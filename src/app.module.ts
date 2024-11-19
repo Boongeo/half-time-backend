@@ -21,12 +21,19 @@ import mailConfig from './config/mail.config';
 import { CacheModule } from '@nestjs/cache-manager';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { HttpErrorInterceptor } from './common/interceptor/http-error.interceptor';
+import jwtConfig from './config/jwt.config';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [postgresConfig, swaggerConfig, loggerConfig, mailConfig],
+      load: [
+        postgresConfig,
+        swaggerConfig,
+        loggerConfig,
+        mailConfig,
+        jwtConfig,
+      ],
     }),
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
