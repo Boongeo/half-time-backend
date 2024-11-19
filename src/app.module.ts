@@ -19,6 +19,8 @@ import { LoggerMiddleware } from './common/middleware/logger.middleware';
 import { MailModule } from './mail/mail.module';
 import mailConfig from './config/mail.config';
 import { CacheModule } from '@nestjs/cache-manager';
+import { APP_INTERCEPTOR } from '@nestjs/core';
+import { HttpErrorInterceptor } from './common/interceptor/http-error.interceptor';
 
 @Module({
   imports: [
@@ -71,7 +73,13 @@ import { CacheModule } from '@nestjs/cache-manager';
     MailModule,
   ],
   controllers: [],
-  providers: [Logger],
+  providers: [
+    Logger,
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: HttpErrorInterceptor,
+    },
+  ],
   exports: [Logger],
 })
 export class AppModule implements NestModule {

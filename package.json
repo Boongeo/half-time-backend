@@ -21,7 +21,7 @@
     "typeorm": "ts-node -r ./node_modules/tsconfig-paths/register ./node_modules/typeorm/cli.js -d src/data-source.ts"
   },
   "dependencies": {
-    "@nestjs-modules/mailer": "^2.0.2",
+    "@nestjs-modules/mailer": "^1.6.1",
     "@nestjs/cache-manager": "^2.3.0",
     "@nestjs/common": "^10.0.0",
     "@nestjs/config": "^3.3.0",

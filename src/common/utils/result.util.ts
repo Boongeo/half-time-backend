@@ -1,6 +1,6 @@
 import { Result } from '../interfaces/result.interface';
 
-export function successResult<T>(data: T): Result<T> {
+export function successResult<T>(data?: T): Result<T> {
   return {
     success: true,
     data,
