@@ -5,7 +5,7 @@ import swaggerConfig from './config/swagger.config';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { WinstonModule } from 'nest-winston';
 import { UserModule } from './user/user.module';
-import { AccountModule } from './account/account.module';
+import { AuthModule } from './auth/auth.module';
 import { BoardModule } from './board/board.module';
 import { MenteeModule } from './mentee/mentee.module';
 import { MentorModule } from './mentor/mentor.module';
@@ -16,12 +16,17 @@ import { TechStackModule } from './tech-stack/tech-stack.module';
 import loggerConfig from './config/logger.config';
 import * as console from 'node:console';
 import { LoggerMiddleware } from './common/middleware/logger.middleware';
+import { MailModule } from './mail/mail.module';
+import mailConfig from './config/mail.config';
+import { CacheModule } from '@nestjs/cache-manager';
+import { APP_INTERCEPTOR } from '@nestjs/core';
+import { HttpErrorInterceptor } from './common/interceptor/http-error.interceptor';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [postgresConfig, swaggerConfig, loggerConfig],
+      load: [postgresConfig, swaggerConfig, loggerConfig, mailConfig],
     }),
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
@@ -51,8 +56,13 @@ import { LoggerMiddleware } from './common/middleware/logger.middleware';
         };
       },
     }),
+    CacheModule.register({
+      ttl: 600000,
+      max: 100,
+      isGlobal: true,
+    }),
     UserModule,
-    AccountModule,
+    AuthModule,
     BoardModule,
     MenteeModule,
     MentorModule,
@@ -60,9 +70,16 @@ import { LoggerMiddleware } from './common/middleware/logger.middleware';
     MentorTechStackModule,
     MentoringSessionModule,
     TechStackModule,
+    MailModule,
   ],
   controllers: [],
-  providers: [Logger],
+  providers: [
+    Logger,
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: HttpErrorInterceptor,
+    },
+  ],
   exports: [Logger],
 })
 export class AppModule implements NestModule {

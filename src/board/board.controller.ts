@@ -1,4 +1,13 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Put, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Put,
+  Query,
+} from '@nestjs/common';
 import { PageReqDto } from '../common/dto/req.dto';
 import { BoardService } from './board.service';
 import { ApiExtraModels, ApiTags } from '@nestjs/swagger';
@@ -10,11 +19,10 @@ import {
   ApiPostResponse,
   ApiUpdateResponse,
 } from '../common/decorater/swagger.decorator';
-import { PageResDto } from '../common/dto/res.dto';
 import { BoardReqDto, FindBoardReqDto } from './dto/req.dto';
 
 @ApiTags('Board')
-@ApiExtraModels(PageResDto, BoardResDto)
+@ApiExtraModels(BoardResDto)
 @Controller('board')
 export class BoardController {
   constructor(private readonly boardService: BoardService) {}

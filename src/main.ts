@@ -5,6 +5,7 @@ import { ConfigService } from '@nestjs/config';
 import { WinstonModule } from 'nest-winston';
 import { initializeSwagger } from './swagger.init';
 import { TransformInterceptor } from './common/interceptor/transform.interceptor';
+import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
   const envFile =
@@ -17,6 +18,14 @@ async function bootstrap() {
 
   const configService = app.get(ConfigService);
   app.useLogger(WinstonModule.createLogger(configService.get('logger')));
+  app.setGlobalPrefix('api');
+  app.useGlobalPipes(
+    new ValidationPipe({
+      transform: true,
+      whitelist: true,
+      forbidNonWhitelisted: true,
+    }),
+  );
 
   initializeSwagger(app, configService);
 
