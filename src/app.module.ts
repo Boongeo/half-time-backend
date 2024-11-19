@@ -1,4 +1,9 @@
-import { Logger, MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import {
+  Logger,
+  MiddlewareConsumer,
+  Module,
+  NestModule,
+} from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import postgresConfig from './config/postgres.config';
 import swaggerConfig from './config/swagger.config';
@@ -14,7 +19,6 @@ import { MentorTechStackModule } from './mentor-tech-stack/mentor-tech-stack.mod
 import { MentoringSessionModule } from './mentoring-session/mentoring-session.module';
 import { TechStackModule } from './tech-stack/tech-stack.module';
 import loggerConfig from './config/logger.config';
-import * as console from 'node:console';
 import { LoggerMiddleware } from './common/middleware/logger.middleware';
 import { MailModule } from './mail/mail.module';
 import mailConfig from './config/mail.config';
@@ -22,6 +26,9 @@ import { CacheModule } from '@nestjs/cache-manager';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { HttpErrorInterceptor } from './common/interceptor/http-error.interceptor';
 import jwtConfig from './config/jwt.config';
+import { DataSource } from 'typeorm';
+import * as console from 'node:console';
+import { addTransactionalDataSource } from 'typeorm-transactional';
 
 @Module({
   imports: [
@@ -36,6 +43,7 @@ import jwtConfig from './config/jwt.config';
       ],
     }),
     TypeOrmModule.forRootAsync({
+      imports: undefined,
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => {
         const isDev = configService.get('NODE_ENV') === 'development';
@@ -52,6 +60,11 @@ import jwtConfig from './config/jwt.config';
         };
         if (isDev) console.log('Sync postgres with logging enabled');
         return obj;
+      },
+      async dataSourceFactory(option) {
+        if (!option) throw new Error('Invalid options passed');
+
+        return addTransactionalDataSource(new DataSource(option));
       },
     }),
     WinstonModule.forRootAsync({

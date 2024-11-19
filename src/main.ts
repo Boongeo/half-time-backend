@@ -6,8 +6,10 @@ import { WinstonModule } from 'nest-winston';
 import { initializeSwagger } from './swagger.init';
 import { TransformInterceptor } from './common/interceptor/transform.interceptor';
 import { ValidationPipe } from '@nestjs/common';
+import { initializeTransactionalContext } from 'typeorm-transactional';
 
 async function bootstrap() {
+  initializeTransactionalContext();
   const envFile =
     process.env.NODE_ENV === 'production' ? '.env.production' : '.env.local';
   dotenv.config({ path: envFile });

@@ -15,17 +15,11 @@ export class Account extends BaseEntity {
   })
   provider: Provider;
 
-  @Column()
-  expiresAt: Date;
-
   @Column({ nullable: true })
   email: string;
 
   @Column({ nullable: true })
   password: string;
-
-  @Column()
-  Certified: boolean;
 
   @OneToOne(() => User, (user) => user.account)
   @JoinColumn()

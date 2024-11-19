@@ -10,7 +10,7 @@ export class User extends BaseEntity {
   @Column({ nullable: true })
   profileImage: string;
 
-  @Column({ unique: true })
+  @Column({ nullable: true, unique: true })
   nickname: string;
 
   @Column({ type: 'enum', enum: Role, default: Role.GUEST })
