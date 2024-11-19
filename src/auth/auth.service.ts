@@ -41,8 +41,6 @@ export class AuthService {
 
   async verifyEmail(email: string, verifyToken: number) {
     const cachedToken = await this.cacheManager.get(email);
-    console.log(cachedToken, verifyToken);
-    console.log(typeof cachedToken, typeof verifyToken);
     if (!cachedToken) {
       throw new NotFoundException('Token not found');
     } else if (cachedToken !== verifyToken) {
@@ -56,12 +54,6 @@ export class AuthService {
     password: string,
     verifyToken: number,
   ): Promise<SignupResDto> {
-    console.log(this.configService.get<string>('jwt.secret'));
-    console.log(this.configService.get<string>('jwt.salt'));
-    console.log(this.configService.get<string>('jwt.secret'));
-    console.log(this.configService.get<string>('jwt.salt'));
-    console.log(this.configService.get<string>('jwt.secret'));
-    console.log(this.configService.get<string>('jwt.salt'));
     const isUser = await this.accountRepository.findOneBy({ email });
     if (isUser) throw new BadRequestException('User already exists');
 
@@ -70,7 +62,6 @@ export class AuthService {
       throw new BadRequestException('Invalid token');
 
     const saltRound = Number(this.configService.get<string>('jwt.salt')) || 10;
-    console.log(saltRound, typeof saltRound);
     const hash = await bcrypt.hash(password, saltRound);
 
     const user = await this.userRepository.save(this.userRepository.create());
