@@ -19,11 +19,10 @@ import {
   ApiPostResponse,
   ApiUpdateResponse,
 } from '../common/decorater/swagger.decorator';
-import { PageResDto } from '../common/dto/res.dto';
 import { BoardReqDto, FindBoardReqDto } from './dto/req.dto';
 
 @ApiTags('Board')
-@ApiExtraModels(PageResDto, BoardResDto)
+@ApiExtraModels(BoardResDto)
 @Controller('board')
 export class BoardController {
   constructor(private readonly boardService: BoardService) {}

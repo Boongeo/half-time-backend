@@ -5,7 +5,7 @@ import swaggerConfig from './config/swagger.config';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { WinstonModule } from 'nest-winston';
 import { UserModule } from './user/user.module';
-import { AccountModule } from './account/account.module';
+import { AuthModule } from './auth/auth.module';
 import { BoardModule } from './board/board.module';
 import { MenteeModule } from './mentee/mentee.module';
 import { MentorModule } from './mentor/mentor.module';
@@ -18,6 +18,7 @@ import * as console from 'node:console';
 import { LoggerMiddleware } from './common/middleware/logger.middleware';
 import { MailModule } from './mail/mail.module';
 import mailConfig from './config/mail.config';
+import { CacheModule } from '@nestjs/cache-manager';
 
 @Module({
   imports: [
@@ -53,8 +54,13 @@ import mailConfig from './config/mail.config';
         };
       },
     }),
+    CacheModule.register({
+      ttl: 600000,
+      max: 100,
+      isGlobal: true,
+    }),
     UserModule,
-    AccountModule,
+    AuthModule,
     BoardModule,
     MenteeModule,
     MentorModule,

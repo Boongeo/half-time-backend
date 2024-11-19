@@ -17,6 +17,7 @@ async function bootstrap() {
 
   const configService = app.get(ConfigService);
   app.useLogger(WinstonModule.createLogger(configService.get('logger')));
+  app.setGlobalPrefix('api');
 
   initializeSwagger(app, configService);
 
