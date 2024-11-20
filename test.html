@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Google OAuth Test</title>
+  <title>OAuth Test</title>
 </head>
 <body>
-<h1>Google OAuth Test</h1>
+<h1>OAuth Test</h1>
+
+<!-- Google 로그인 버튼 -->
 <a href="http://localhost:4000/api/auth/google" style="
         display: inline-block;
         background-color: #4285f4;
@@ -13,8 +15,41 @@
         text-decoration: none;
         border-radius: 5px;
         font-family: Arial, sans-serif;
+        margin-bottom: 10px;
+        display: block;
     ">
   Google로 로그인
+</a>
+
+<!-- GitHub 로그인 버튼 -->
+<a href="http://localhost:4000/api/auth/github" style="
+        display: inline-block;
+        background-color: #333;
+        color: white;
+        padding: 10px 20px;
+        text-decoration: none;
+        border-radius: 5px;
+        font-family: Arial, sans-serif;
+        margin-top: 10px;
+        margin-bottom: 10px;
+        display: block;
+    ">
+  GitHub로 로그인
+</a>
+
+<!-- LinkedIn 로그인 버튼 -->
+<a href="http://localhost:4000/api/auth/linkedin" style="
+        display: inline-block;
+        background-color: #0077B5;
+        color: white;
+        padding: 10px 20px;
+        text-decoration: none;
+        border-radius: 5px;
+        font-family: Arial, sans-serif;
+        margin-top: 10px;
+        display: block;
+    ">
+  LinkedIn으로 로그인
 </a>
 
 <script>

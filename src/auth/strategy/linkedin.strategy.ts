@@ -1,31 +1,34 @@
 import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ConfigService } from '@nestjs/config';
-import { Profile, Strategy } from 'passport-google-oauth20';  // 여기가 변경됨
+import { Strategy, Profile } from 'passport-linkedin-oauth2';
 import { Provider } from '../enums/provider.enum';
 import { SignupResDto } from '../dto/res.dto';
 import { AuthService } from '../auth.service';
 
 @Injectable()
-export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
+export class LinkedInStrategy extends PassportStrategy(Strategy, 'linkedin') {
   constructor(
     private readonly authService: AuthService,
     configService: ConfigService,
   ) {
     super({
-      clientID: configService.get<string>('authSecret.google_client_id'),
+      clientID: configService.get<string>('authSecret.linkedin_client_id'),
       clientSecret: configService.get<string>(
-        'authSecret.google_client_secret',
+        'authSecret.linkedin_client_secret',
       ),
-      callbackURL: configService.get<string>('authSecret.google_callback_url'),
-      scope: ['email', 'profile'],
+      callbackURL: configService.get<string>(
+        'authSecret.linkedin_callback_url',
+      ),
+      scope: ['r_emailaddress', 'r_liteprofile'],
+      state: true,
     });
   }
 
   async validate(
     accessToken: string,
     refreshToken: string,
-    profile: Profile,
+    profile: Profile, // LinkedIn Profile Type
   ): Promise<SignupResDto> {
     const { emails, id, displayName } = profile;
     const email = emails[0].value;
@@ -33,7 +36,7 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
     return this.authService.handleSocialLoginOrSignup({
       email,
       socialId: id,
-      provider: Provider.GOOGLE,
+      provider: Provider.LINKEDIN,
       nickname: displayName,
     });
   }

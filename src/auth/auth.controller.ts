@@ -104,7 +104,42 @@ export class AuthController {
       provider: Provider;
       nickname?: string;
     };
+    return await this.authService.handleSocialLoginOrSignup(user);
+  }
 
+  @Public()
+  @Get('github')
+  @UseGuards(AuthGuard('github'))
+  async githubSignIn(@Req() req: Request) {}
+
+  @Public()
+  @Get('github/callback')
+  @UseGuards(AuthGuard('google'))
+  async githubSignInCallback(@Req() req: Request) {
+    const user = req.user as {
+      email: string;
+      socialId: string;
+      provider: Provider;
+      nickname?: string;
+    };
+    return await this.authService.handleSocialLoginOrSignup(user);
+  }
+
+  @Public()
+  @Get('linkedin')
+  @UseGuards(AuthGuard('linkedin'))
+  async linkedinSignIn(@Req() req: Request) {}
+
+  @Public()
+  @Get('linkedin/callback')
+  @UseGuards(AuthGuard('linkedin'))
+  async linkedinSignInCallback(@Req() req: Request) {
+    const user = req.user as {
+      email: string;
+      socialId: string;
+      provider: Provider;
+      nickname?: string;
+    };
     return await this.authService.handleSocialLoginOrSignup(user);
   }
 }

@@ -7,6 +7,7 @@ import { initializeSwagger } from './swagger.init';
 import { TransformInterceptor } from './common/interceptor/transform.interceptor';
 import { ValidationPipe } from '@nestjs/common';
 import { initializeTransactionalContext } from 'typeorm-transactional';
+import * as session from 'express-session';
 
 async function bootstrap() {
   initializeTransactionalContext();
@@ -26,6 +27,18 @@ async function bootstrap() {
       transform: true,
       whitelist: true,
       forbidNonWhitelisted: true,
+    }),
+  );
+
+  app.use(
+    session({
+      secret: configService.get<string>('SESSION_SECRET'),
+      resave: false,
+      saveUninitialized: false,
+      cookie: {
+        secure: false,
+        maxAge: 3600000,
+      },
     }),
   );
 
