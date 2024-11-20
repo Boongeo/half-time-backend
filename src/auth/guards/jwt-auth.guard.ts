@@ -1,34 +1,46 @@
-import { ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
-import { BaseGuard } from './base.guard';
+import {
+  ExecutionContext,
+  Inject,
+  Injectable,
+  Logger,
+  UnauthorizedException,
+} from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 import { Reflector } from '@nestjs/core';
+import { JwtService } from '@nestjs/jwt';
+import { Observable } from 'rxjs';
+import { IS_PUBLIC_KEY } from '../../common/decorater/public.decorator';
 
 @Injectable()
-export class JwtAuthGuard extends BaseGuard {
+export class JwtAuthGuard extends AuthGuard('jwt') {
   constructor(
-    reflector: Reflector,
+    private reflector: Reflector,
     private jwtService: JwtService,
+    @Inject(Logger) private logger: Logger,
   ) {
-    super(reflector); // BaseGuard 초기화
+    super();
   }
 
-  protected async handle(context: ExecutionContext): Promise<boolean> {
+  canActivate(
+    context: ExecutionContext,
+  ): boolean | Promise<boolean> | Observable<boolean> {
+    const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
+      context.getHandler(),
+      context.getClass(),
+    ]);
+    if (isPublic) return true; // 공개 경로이면 인증 없이 접근 허용
+
     const http = context.switchToHttp();
-    const request = http.getRequest();
+    const { url, headers } = http.getRequest<Request>();
+    const token = /Bearer\s(.+)/.exec(headers['authorization'])[1];
+    const decoded = this.jwtService.decode(token);
 
-    const authorization = request.headers['authorization'];
-    const token = /Bearer\s(.+)/.exec(authorization)?.[1];
-
-    if (!token) {
-      throw new UnauthorizedException('Authorization token missing');
+    if (url !== '/api/auth/refresh' && decoded['tokenType'] === 'refresh') {
+      const error = new UnauthorizedException('accessToken is required');
+      this.logger.error(error.message, error.stack);
+      throw error;
     }
 
-    try {
-      // JWT 토큰 검증 및 디코딩
-      request.user = this.jwtService.verify(token); // 사용자 정보를 request.user에 설정
-      return true;
-    } catch (error) {
-      throw new UnauthorizedException(error.message);
-    }
+    return super.canActivate(context);
   }
 }

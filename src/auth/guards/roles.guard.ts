@@ -18,18 +18,26 @@ export class RolesGuard extends BaseGuard {
       'ROLES_KEY',
       [context.getHandler(), context.getClass()],
     );
+    console.log(requiredRoles);
 
     if (!requiredRoles) {
-      return true; // 역할 검증이 필요 없으면 통과
+      return true;
     }
 
     const request = context.switchToHttp().getRequest();
     const user = request.user;
 
-    if (!user || !requiredRoles.includes(user.role)) {
+    console.log(user);
+    console.log(user);
+    console.log(user);
+
+    if (
+      !user ||
+      !user.roles.some((role: string) => requiredRoles.includes(role as Role))
+    ) {
       throw new UnauthorizedException('Insufficient permissions');
     }
 
-    return true; // 역할 검증 성공
+    return true;
   }
 }

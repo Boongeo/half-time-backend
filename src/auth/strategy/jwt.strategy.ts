@@ -2,7 +2,6 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { ConfigService } from '@nestjs/config';
-import { UserService } from '../../user/user.service';
 import { UserAfterAuth } from '../../common/decorater/user.decorator';
 import { Repository } from 'typeorm';
 import { User } from '../../user/entity/user.entity';
@@ -32,7 +31,6 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
       throw new UnauthorizedException('User not found');
     }
 
-    // user.userRoles에서 RoleEntity의 role 값을 추출하여 배열 생성
     const roles = user.userRoles.map((userRole) => userRole.role.role);
 
     return {

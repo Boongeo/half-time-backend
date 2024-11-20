@@ -31,6 +31,7 @@ import * as console from 'node:console';
 import { addTransactionalDataSource } from 'typeorm-transactional';
 import { RoleEntitySubscriber } from './subscriber/role-entity.subscriber';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
+import { RolesGuard } from './auth/guards/roles.guard';
 
 @Module({
   imports: [
@@ -104,6 +105,10 @@ import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
     {
       provide: APP_GUARD,
       useClass: JwtAuthGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: RolesGuard,
     },
   ],
   exports: [Logger],
