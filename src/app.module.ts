@@ -29,6 +29,7 @@ import jwtConfig from './config/jwt.config';
 import { DataSource } from 'typeorm';
 import * as console from 'node:console';
 import { addTransactionalDataSource } from 'typeorm-transactional';
+import { RoleEntitySubscriber } from './subscriber/role-entity.subscriber';
 
 @Module({
   imports: [
@@ -63,7 +64,6 @@ import { addTransactionalDataSource } from 'typeorm-transactional';
       },
       async dataSourceFactory(option) {
         if (!option) throw new Error('Invalid options passed');
-
         return addTransactionalDataSource(new DataSource(option));
       },
     }),
@@ -95,6 +95,7 @@ import { addTransactionalDataSource } from 'typeorm-transactional';
   controllers: [],
   providers: [
     Logger,
+    RoleEntitySubscriber,
     {
       provide: APP_INTERCEPTOR,
       useClass: HttpErrorInterceptor,

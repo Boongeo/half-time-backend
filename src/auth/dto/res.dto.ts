@@ -1,9 +1,14 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { TokenType } from '../enums/token-type.enum';
 
-export class VerifyEmailResDto {
+export class EmailResDto {
   @ApiProperty({ required: true })
   email: string;
+}
+
+export class EmailExistsResDto {
+  @ApiProperty({ required: true })
+  exists: boolean;
 }
 
 export class AfterVerifyResDto {

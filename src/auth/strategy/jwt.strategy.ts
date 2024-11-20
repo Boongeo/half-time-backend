@@ -23,10 +23,22 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
   }
 
   async validate(payload: any): Promise<UserAfterAuth> {
-    const user = await this.userRepository.findOneBy({ id: payload.sub });
+    const user = await this.userRepository.findOne({
+      where: { id: payload.sub },
+      relations: ['userRoles', 'userRoles.role'], // RoleEntity까지 로드
+    });
+
     if (!user) {
       throw new UnauthorizedException('User not found');
     }
-    return { id: user.id, nickname: user.nickname, role: user.role }; // 사용자 정보 반환
+
+    // user.userRoles에서 RoleEntity의 role 값을 추출하여 배열 생성
+    const roles = user.userRoles.map((userRole) => userRole.role.role);
+
+    return {
+      id: user.id,
+      nickname: user.nickname,
+      roles,
+    };
   }
 }

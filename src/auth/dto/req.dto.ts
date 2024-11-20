@@ -8,7 +8,7 @@ import {
 import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 
-export class VerifyEmailReqDto {
+export class EmailReqDto {
   @IsString()
   @IsNotEmpty()
   @ApiProperty({ description: 'verify email', example: 'example@example.com' })

@@ -17,6 +17,9 @@ import { Account } from './entity/account.entity';
 import { TokenType } from './enums/token-type.enum';
 import { Payload, SignupResDto } from './dto/res.dto';
 import { MailService } from '../mail/mail.service';
+import { Role } from '../user/enums/role.enum';
+import { RoleEntity } from '../user/entity/roles.entity';
+import { UserRolesEntity } from '../user/entity/user-roles.entity';
 
 @Injectable()
 export class AuthService {
@@ -26,11 +29,21 @@ export class AuthService {
     private readonly mailService: MailService,
     @Inject(CACHE_MANAGER)
     private readonly cacheManager: Cache,
+    @InjectRepository(RoleEntity)
+    private readonly roleRepository: Repository<RoleEntity>,
+    @InjectRepository(UserRolesEntity)
+    private readonly userRolesRepository: Repository<UserRolesEntity>,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
     @InjectRepository(Account)
     private readonly accountRepository: Repository<Account>,
   ) {}
+
+  async checkEmail(email: string) {
+    const isUser = await this.accountRepository.findOneBy({ email });
+    if (isUser) return { exists: true };
+    else return { exists: false };
+  }
 
   async sendVerification(email: string) {
     const verifyToken = this.generateRandomNumber();
@@ -64,7 +77,17 @@ export class AuthService {
     const saltRound = Number(this.configService.get<string>('jwt.salt')) || 10;
     const hash = await bcrypt.hash(password, saltRound);
 
+    // 1. 새로운 User 생성 및 저장
     const user = await this.userRepository.save(this.userRepository.create());
+
+    // 2. UserRolesEntity 생성 및 저장 (기본 Role: USER)
+    const role = await this.roleRepository.findOneBy({ role: Role.USER });
+    if (!role) throw new Error('Default USER role is not available');
+
+    const userRole = this.userRolesRepository.create({ user, role });
+    await this.userRolesRepository.save(userRole);
+
+    // 3. Account 생성 및 저장
     const refreshToken = this.generateRefreshToken({
       sub: user.id,
       tokenType: TokenType.REFRESH,
@@ -79,12 +102,15 @@ export class AuthService {
       }),
     );
 
+    // 4. 캐시에서 인증 토큰 삭제
     await this.cacheManager.del(email);
 
+    // 5. AccessToken 생성 후 반환
     const accessToken = this.generateAccessToken({
       sub: user.id,
       tokenType: TokenType.ACCESS,
     });
+
     return {
       id: user.id,
       accessToken,
@@ -120,6 +146,25 @@ export class AuthService {
     };
   }
 
+  async refresh(token: string, userId: string) {
+    const account = await this.accountRepository.findOne({
+      where: { user: { id: userId } },
+      relations: ['user'],
+    });
+
+    const accessToken = this.generateAccessToken({
+      sub: account.user.id,
+      tokenType: TokenType.ACCESS,
+    });
+    const refreshToken = this.generateAccessToken({
+      sub: account.user.id,
+      tokenType: TokenType.REFRESH,
+    });
+    account.refreshToken = refreshToken;
+    await this.accountRepository.save(account);
+    return { accessToken, refreshToken };
+  }
+
   private generateAccessToken(payload: Payload) {
     return this.jwtService.sign(payload, { expiresIn: '1d' });
   }
@@ -133,4 +178,5 @@ export class AuthService {
     const maxNumber = 999999;
     return Math.floor(Math.random() * (maxNumber - minNumber + 1)) + minNumber;
   }
+
 }
