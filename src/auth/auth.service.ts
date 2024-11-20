@@ -20,6 +20,7 @@ import { MailService } from '../mail/mail.service';
 import { Role } from '../user/enums/role.enum';
 import { RoleEntity } from '../user/entity/roles.entity';
 import { UserRolesEntity } from '../user/entity/user-roles.entity';
+import { Provider } from './enums/provider.enum';
 
 @Injectable()
 export class AuthService {
@@ -118,6 +119,96 @@ export class AuthService {
     };
   }
 
+  async socialLogin(
+    email: string,
+    socialId: string,
+    provider: Provider,
+  ): Promise<SignupResDto> {
+    const existingAccount = await this.accountRepository.findOne({
+      where: { email, socialId, provider },
+      relations: ['user'],
+    });
+
+    if (!existingAccount) {
+      throw new NotFoundException('Account not found');
+    }
+
+    const accessToken = this.generateAccessToken({
+      sub: existingAccount.user.id,
+      tokenType: TokenType.ACCESS,
+    });
+    const refreshToken = this.generateRefreshToken({
+      sub: existingAccount.user.id,
+      tokenType: TokenType.REFRESH,
+    });
+
+    existingAccount.refreshToken = refreshToken;
+    await this.accountRepository.save(existingAccount);
+
+    return {
+      id: existingAccount.user.id,
+      accessToken,
+      refreshToken,
+    };
+  }
+
+  async socialSignup(
+    email: string,
+    socialId: string,
+    provider: Provider,
+    nickname?: string,
+  ): Promise<SignupResDto> {
+    const isExistingAccount = await this.accountRepository.findOneBy({ email });
+    if (isExistingAccount) {
+      throw new BadRequestException('Email already exists');
+    }
+
+    const user = await this.userRepository.save(
+      this.userRepository.create({
+        nickname: nickname,
+      }),
+    );
+
+    // 3. UserRolesEntity 생성 및 저장 (기본 Role: USER)
+    const role = await this.roleRepository.findOneBy({ role: Role.USER });
+    if (!role) {
+      throw new InternalServerErrorException(
+        'Default USER role is not available',
+      );
+    }
+
+    const userRole = this.userRolesRepository.create({ user, role });
+    await this.userRolesRepository.save(userRole);
+
+    // 4. Account 생성 및 저장
+    const refreshToken = this.generateRefreshToken({
+      sub: user.id,
+      tokenType: TokenType.REFRESH,
+    });
+
+    await this.accountRepository.save(
+      this.accountRepository.create({
+        email,
+        socialId,
+        provider,
+        user,
+        refreshToken,
+      }),
+    );
+
+    // 5. AccessToken 생성 후 반환
+    const accessToken = this.generateAccessToken({
+      sub: user.id,
+      tokenType: TokenType.ACCESS,
+    });
+
+    return {
+      id: user.id,
+      accessToken,
+      refreshToken,
+    };
+  }
+
   async signin(email: string, password: string) {
     const account = await this.accountRepository.findOne({
       where: { email },
@@ -163,6 +254,27 @@ export class AuthService {
     account.refreshToken = refreshToken;
     await this.accountRepository.save(account);
     return { accessToken, refreshToken };
+  }
+
+  async handleSocialLoginOrSignup(userInfo: {
+    email: string;
+    socialId: string;
+    provider: Provider;
+    nickname?: string;
+  }): Promise<SignupResDto> {
+    const { email, socialId, provider, nickname } = userInfo;
+
+    const existingAccount = await this.findAccountByEmailAndProvider(email, provider);
+
+    if (existingAccount) {
+      return this.socialLogin(email, socialId, provider);
+    }
+
+    return this.socialSignup(email, socialId, provider, nickname);
+  }
+
+  async findAccountByEmailAndProvider(email: string, social: Provider) {
+    return this.accountRepository.findOneBy({ email, provider: social });
   }
 
   private generateAccessToken(payload: Payload) {

@@ -16,6 +16,9 @@ export class Account extends BaseEntity {
   provider: Provider;
 
   @Column({ nullable: true })
+  socialId?: string;
+
+  @Column({ nullable: true })
   email: string;
 
   @Column({ nullable: true })

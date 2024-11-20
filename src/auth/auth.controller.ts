@@ -1,23 +1,21 @@
-import { BadRequestException, Body, Controller, Headers, Param, Post, Put } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, Headers, Param, Post, Put, Req, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiExtraModels, ApiTags } from '@nestjs/swagger';
-import {
-  SigninReqDto,
-  SignupReqDto,
-  EmailReqDto,
-  VerifyTokenReqDto,
-} from './dto/req.dto';
+import { EmailReqDto, SigninReqDto, SignupReqDto, VerifyTokenReqDto } from './dto/req.dto';
 import { AuthService } from './auth.service';
 import {
   AfterVerifyResDto,
+  EmailExistsResDto,
+  EmailResDto,
   RefreshResDto,
   SigninResDto,
   SignupResDto,
-  EmailResDto,
-  EmailExistsResDto,
 } from './dto/res.dto';
 import { ApiPostResponse } from '../common/decorater/swagger.decorator';
 import { Public } from '../common/decorater/public.decorator';
 import { User, UserAfterAuth } from '../common/decorater/user.decorator';
+import { AuthGuard } from '@nestjs/passport';
+import { Request } from 'express';
+import { Provider } from './enums/provider.enum';
 
 @ApiTags('auth')
 @ApiExtraModels(
@@ -69,7 +67,7 @@ export class AuthController {
   @ApiPostResponse(SigninResDto)
   @Post('signin')
   @Public()
-  async signin(@Body() { email, password }: SigninReqDto) {
+  async signIn(@Body() { email, password }: SigninReqDto) {
     return this.authService.signin(email, password);
   }
 
@@ -84,7 +82,29 @@ export class AuthController {
     if (!token) {
       throw new BadRequestException('Invalid authorization header');
     }
-    const { accessToken, refreshToken } = await this.authService.refresh(token, user.id);
+    const { accessToken, refreshToken } = await this.authService.refresh(
+      token,
+      user.id,
+    );
     return { accessToken, refreshToken };
+  }
+
+  @Public()
+  @Get('google')
+  @UseGuards(AuthGuard('google'))
+  async googleSignIn(@Req() req: Request) {}
+
+  @Public()
+  @Get('google/callback')
+  @UseGuards(AuthGuard('google'))
+  async googleSignInCallback(@Req() req: Request) {
+    const user = req.user as {
+      email: string;
+      socialId: string;
+      provider: Provider;
+      nickname?: string;
+    };
+
+    return await this.authService.handleSocialLoginOrSignup(user);
   }
 }
