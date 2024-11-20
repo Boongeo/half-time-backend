@@ -6,8 +6,11 @@ import { WinstonModule } from 'nest-winston';
 import { initializeSwagger } from './swagger.init';
 import { TransformInterceptor } from './common/interceptor/transform.interceptor';
 import { ValidationPipe } from '@nestjs/common';
+import { initializeTransactionalContext } from 'typeorm-transactional';
+import * as session from 'express-session';
 
 async function bootstrap() {
+  initializeTransactionalContext();
   const envFile =
     process.env.NODE_ENV === 'production' ? '.env.production' : '.env.local';
   dotenv.config({ path: envFile });
@@ -24,6 +27,18 @@ async function bootstrap() {
       transform: true,
       whitelist: true,
       forbidNonWhitelisted: true,
+    }),
+  );
+
+  app.use(
+    session({
+      secret: configService.get<string>('SESSION_SECRET'),
+      resave: false,
+      saveUninitialized: false,
+      cookie: {
+        secure: false,
+        maxAge: 3600000,
+      },
     }),
   );
 
