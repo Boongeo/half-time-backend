@@ -32,18 +32,21 @@ import { User, UserAfterAuth } from '../common/decorater/user.decorator';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  @Public()
   @Post('check-email')
   @ApiPostResponse(EmailExistsResDto)
   async checkEmail(@Body() { email }: EmailReqDto) {
     return await this.authService.checkEmail(email);
   }
 
+  @Public()
   @Post('request-verification')
   @ApiPostResponse(EmailResDto)
   async sendVerification(@Body() { email }: EmailReqDto) {
     return await this.authService.sendVerification(email);
   }
 
+  @Public()
   @Put('verify-code/:verifyToken')
   @ApiPostResponse(AfterVerifyResDto)
   async checkVerifyToken(
@@ -54,6 +57,7 @@ export class AuthController {
     return { message: 'Email verified' };
   }
 
+  @Public()
   @ApiPostResponse(SignupResDto)
   @Post('signup')
   @Public()
@@ -61,6 +65,7 @@ export class AuthController {
     return this.authService.signup(email, password, verifyToken);
   }
 
+  @Public()
   @ApiPostResponse(SigninResDto)
   @Post('signin')
   @Public()

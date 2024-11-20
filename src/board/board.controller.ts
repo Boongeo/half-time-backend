@@ -10,7 +10,7 @@ import {
 } from '@nestjs/common';
 import { PageReqDto } from '../common/dto/req.dto';
 import { BoardService } from './board.service';
-import { ApiExtraModels, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiExtraModels, ApiTags } from '@nestjs/swagger';
 import { BoardResDto } from './dto/res.dto';
 import {
   ApiDeleteResponse,
@@ -21,6 +21,7 @@ import {
 } from '../common/decorater/swagger.decorator';
 import { BoardReqDto, FindBoardReqDto } from './dto/req.dto';
 
+@ApiBearerAuth()
 @ApiTags('Board')
 @ApiExtraModels(BoardResDto)
 @Controller('board')

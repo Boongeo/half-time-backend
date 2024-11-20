@@ -23,13 +23,14 @@ import { LoggerMiddleware } from './common/middleware/logger.middleware';
 import { MailModule } from './mail/mail.module';
 import mailConfig from './config/mail.config';
 import { CacheModule } from '@nestjs/cache-manager';
-import { APP_INTERCEPTOR } from '@nestjs/core';
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { HttpErrorInterceptor } from './common/interceptor/http-error.interceptor';
 import jwtConfig from './config/jwt.config';
 import { DataSource } from 'typeorm';
 import * as console from 'node:console';
 import { addTransactionalDataSource } from 'typeorm-transactional';
 import { RoleEntitySubscriber } from './subscriber/role-entity.subscriber';
+import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 
 @Module({
   imports: [
@@ -99,6 +100,10 @@ import { RoleEntitySubscriber } from './subscriber/role-entity.subscriber';
     {
       provide: APP_INTERCEPTOR,
       useClass: HttpErrorInterceptor,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard,
     },
   ],
   exports: [Logger],
