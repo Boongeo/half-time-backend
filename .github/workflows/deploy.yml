@@ -6,8 +6,8 @@ on:
       - develop
 
 jobs:
-  build-and-push:
-    name: Build and Push to Docker Hub
+  build-and-deploy:
+    name: Build, Push, and Deploy to EC2
     runs-on: ubuntu-latest
 
     steps:
@@ -27,3 +27,18 @@ jobs:
       run: |
         docker build -t ${{ secrets.DOCKER_USERNAME }}/half-time-dev:latest --build-arg NODE_ENV=development .
         docker push ${{ secrets.DOCKER_USERNAME }}/half-time-dev:latest
+
+    # 4. EC2로 배포
+    - name: Deploy to EC2
+      uses: appleboy/ssh-action@v0.1.10
+      with:
+        host: ${{secrets.EC2_PUBLIC_IP}}
+        username: ec2-user
+        key: ${{ secrets.EC2_SSH_KEY }}
+        script: |
+          cd /home/ec2-user/app
+
+          # docker-compose.yml 최신 상태로 업데이트 (필요 시 Git Pull 또는 SCP로 전송)
+          docker-compose down || true
+          docker-compose pull
+          docker-compose up -d
