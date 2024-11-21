@@ -11,8 +11,20 @@ import * as session from 'express-session';
 
 async function bootstrap() {
   initializeTransactionalContext();
-  const envFile =
-    process.env.NODE_ENV === 'production' ? '.env.production' : '.env.local';
+  const envFile = (() => {
+    switch (process.env.NODE_ENV) {
+      case 'local':
+        return '.env.local';
+      case 'development':
+        return '.env.develop';
+      case 'production':
+        return '.env.production';
+      default:
+        throw new Error(
+          `Unknown NODE_ENV value: ${process.env.NODE_ENV}. Expected one of: local, develop, production`
+        );
+    }
+  })();
   dotenv.config({ path: envFile });
 
   const app = await NestFactory.create(AppModule, {
