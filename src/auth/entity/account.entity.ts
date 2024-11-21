@@ -15,8 +15,8 @@ export class Account extends BaseEntity {
   })
   provider: Provider;
 
-  @Column()
-  expiresAt: Date;
+  @Column({ nullable: true })
+  socialId?: string;
 
   @Column({ nullable: true })
   email: string;
