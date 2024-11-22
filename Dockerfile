@@ -6,6 +6,8 @@ WORKDIR /app
 # 소스 코드 추가
 ADD . .
 
+RUN mkdir -p /app/uploads
+
 # bcrypt 재설치
 RUN npm uninstall bcrypt
 RUN npm install bcrypt
