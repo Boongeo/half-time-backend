@@ -14,9 +14,14 @@ RUN npm install bcrypt
 RUN npm install
 RUN npm run build
 
-# 환경 변수 설정 (개발 환경)
+# 환경 변수 설정
 ARG NODE_ENV=development
 ENV NODE_ENV=${NODE_ENV}
+
+# 개발 환경에서만 마이그레이션 생성
+RUN if [ "$NODE_ENV" = "development" ]; then \
+    npm run typeorm migration:generate -- src/migrations/InitialMigration; \
+    fi
 
 # 명령어: TypeORM 마이그레이션 및 개발 서버 실행
 CMD npm run typeorm migration:run && npm run start:dev
