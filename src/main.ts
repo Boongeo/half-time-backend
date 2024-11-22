@@ -8,6 +8,8 @@ import { TransformInterceptor } from './common/interceptor/transform.interceptor
 import { ValidationPipe } from '@nestjs/common';
 import { initializeTransactionalContext } from 'typeorm-transactional';
 import * as session from 'express-session';
+import * as express from 'express';
+import { join } from 'path';
 
 async function bootstrap() {
   initializeTransactionalContext();
@@ -21,7 +23,7 @@ async function bootstrap() {
         return '.env.production';
       default:
         throw new Error(
-          `Unknown NODE_ENV value: ${process.env.NODE_ENV}. Expected one of: local, develop, production`
+          `Unknown NODE_ENV value: ${process.env.NODE_ENV}. Expected one of: local, develop, production`,
         );
     }
   })();
@@ -32,6 +34,7 @@ async function bootstrap() {
   });
 
   const configService = app.get(ConfigService);
+  app.use('/upload', express.static(join(__dirname, '..', 'upload')));
   app.useLogger(WinstonModule.createLogger(configService.get('logger')));
   app.setGlobalPrefix('api');
   app.useGlobalPipes(
