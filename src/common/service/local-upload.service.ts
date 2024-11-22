@@ -14,7 +14,7 @@ export class LocalUploadService implements UploadService {
     this.relativeUploadPath = this.configService.get<string>(
       'file-upload.uploadPath',
     ); // 상대경로
-    this.uploadPath = path.resolve(this.relativeUploadPath); // 절대경로로 변환
+    this.uploadPath = path.resolve(this.relativeUploadPath);
 
     console.log('Absolute uploadPath:', this.uploadPath);
 
@@ -23,13 +23,15 @@ export class LocalUploadService implements UploadService {
     }
   }
 
-
   async uploadFile(file: Express.Multer.File): Promise<string> {
     console.log('relativeUploadPath:', this.relativeUploadPath);
     console.log('Absolute uploadPath:', this.uploadPath);
-    const fileName = `${uuid()}-${file.originalname}`;
-    const absoluteFilePath = path.join(this.uploadPath, fileName); // 절대 경로로 파일 저장
-    const relativeFilePath = path.join(this.relativeUploadPath, fileName); // 상대 경로 생성
+
+    // 한글 파일 이름 처리 (UUID로 변경 또는 URL-safe 방식)
+    const sanitizedFileName = this.sanitizeFileName(file.originalname);
+    const fileName = `${uuid()}-${sanitizedFileName}`;
+    const absoluteFilePath = path.join(this.uploadPath, fileName);
+    const relativeFilePath = path.join(this.relativeUploadPath, fileName);
 
     try {
       fs.writeFileSync(absoluteFilePath, file.buffer); // 파일 저장
@@ -40,5 +42,9 @@ export class LocalUploadService implements UploadService {
         error.stack,
       );
     }
+  }
+
+  private sanitizeFileName(filename: string): string {
+    return filename.replace(/[^\w.\-가-힣]/g, '_').normalize('NFC');
   }
 }
