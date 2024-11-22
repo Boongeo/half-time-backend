@@ -54,6 +54,12 @@ async function bootstrap() {
     }),
   );
 
+  app.enableCors({
+    origin: configService.get<string>('FRONTEND_URL'),
+    credentials: true, // 쿠키를 포함한 요청 허용
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS', // 허용할 HTTP 메서드
+  });
+
   initializeSwagger(app, configService);
 
   app.useGlobalInterceptors(new TransformInterceptor());
