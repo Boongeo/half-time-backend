@@ -1,26 +1,25 @@
 import {
   BadRequestException,
   Inject,
-  Injectable,
-  InternalServerErrorException,
+  Injectable, InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import { JwtService } from '@nestjs/jwt';
-import * as bcrypt from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
+import { MailService } from '../mail/mail.service';
 import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
-import { Transactional } from 'typeorm-transactional';
+import { InjectRepository } from '@nestjs/typeorm';
+import { RoleEntity } from '../user/entity/roles.entity';
+import { Repository } from 'typeorm';
+import { UserRolesEntity } from '../user/entity/user-roles.entity';
 import { User } from '../user/entity/user.entity';
 import { Account } from './entity/account.entity';
-import { TokenType } from './enums/token-type.enum';
+import { Transactional } from 'typeorm-transactional';
 import { Payload, SignupResDto } from './dto/res.dto';
-import { MailService } from '../mail/mail.service';
 import { Role } from '../user/enums/role.enum';
-import { RoleEntity } from '../user/entity/roles.entity';
-import { UserRolesEntity } from '../user/entity/user-roles.entity';
 import { Provider } from './enums/provider.enum';
+import * as bcrypt from 'bcrypt';
+import { TokenType } from './enums/token-type.enum';
 
 @Injectable()
 export class AuthService {
@@ -40,26 +39,24 @@ export class AuthService {
     private readonly accountRepository: Repository<Account>,
   ) {}
 
+  // 이메일 중복 체크
   async checkEmail(email: string) {
-    const isUser = await this.accountRepository.findOneBy({ email });
-    if (isUser) return { exists: true };
-    else return { exists: false };
+    return { exists: !!(await this.accountRepository.findOneBy({ email })) };
   }
 
+  // 이메일 인증 토큰 생성 및 전송
   async sendVerification(email: string) {
     const verifyToken = this.generateRandomNumber();
-    // TODO: Implement the logic to save the verifyToken in the Redis cache
     await this.cacheManager.set(email, verifyToken);
     await this.mailService.sendVerifyToken(email, verifyToken);
   }
 
+  // 이메일 인증
   async verifyEmail(email: string, verifyToken: number) {
     const cachedToken = await this.cacheManager.get(email);
-    if (!cachedToken) {
-      throw new NotFoundException('Token not found');
-    } else if (cachedToken !== verifyToken) {
-      throw new InternalServerErrorException('Invalid token');
-    }
+    if (!cachedToken) throw new NotFoundException('Token not found');
+    if (Number(cachedToken) !== verifyToken)
+      throw new BadRequestException('Invalid token');
   }
 
   @Transactional()
@@ -68,173 +65,68 @@ export class AuthService {
     password: string,
     verifyToken: number,
   ): Promise<SignupResDto> {
-    const isUser = await this.accountRepository.findOneBy({ email });
-    if (isUser) throw new BadRequestException('User already exists');
+    // 이메일 중복 확인
+    if (await this.accountRepository.findOneBy({ email })) {
+      throw new BadRequestException('User already exists');
+    }
 
-    const cachedToken = await this.cacheManager.get(email);
-    if (Number(cachedToken) !== verifyToken)
-      throw new BadRequestException('Invalid token');
+    // 이메일 인증 토큰 확인
+    await this.verifyEmail(email, verifyToken);
 
-    const saltRound = Number(this.configService.get<string>('jwt.salt')) || 10;
-    const hash = await bcrypt.hash(password, saltRound);
+    // 비밀번호 해싱
+    const hash = await this.hashPassword(password);
 
-    // 1. 새로운 User 생성 및 저장
-    const user = await this.userRepository.save(this.userRepository.create());
+    // 사용자 생성 및 역할 할당
+    const user = await this.createUserWithRole(Role.USER);
 
-    // 2. UserRolesEntity 생성 및 저장 (기본 Role: USER)
-    const role = await this.roleRepository.findOneBy({ role: Role.USER });
-    if (!role) throw new Error('Default USER role is not available');
-
-    const userRole = this.userRolesRepository.create({ user, role });
-    await this.userRolesRepository.save(userRole);
-
-    // 3. Account 생성 및 저장
-    const refreshToken = this.generateRefreshToken({
-      sub: user.id,
-      tokenType: TokenType.REFRESH,
+    // 계정 생성 및 저장
+    const { refreshToken, accessToken } = await this.createAccount({
+      email,
+      password: hash,
+      user,
     });
 
-    await this.accountRepository.save(
-      this.accountRepository.create({
-        email,
-        password: hash,
-        user,
-        refreshToken,
-      }),
-    );
-
-    // 4. 캐시에서 인증 토큰 삭제
+    // 인증 토큰 삭제
     await this.cacheManager.del(email);
 
-    // 5. AccessToken 생성 후 반환
-    const accessToken = this.generateAccessToken({
-      sub: user.id,
-      tokenType: TokenType.ACCESS,
-    });
-
-    return {
-      id: user.id,
-      accessToken,
-      refreshToken,
-    };
+    return { id: user.id, accessToken, refreshToken };
   }
 
-  async socialLogin(
-    email: string,
-    socialId: string,
-    provider: Provider,
-  ): Promise<SignupResDto> {
-    const existingAccount = await this.accountRepository.findOne({
-      where: { email, socialId, provider },
-      relations: ['user'],
-    });
+  async socialLoginOrSignup(userInfo: {
+    email: string;
+    socialId: string;
+    provider: Provider;
+  }): Promise<SignupResDto> {
+    const { email, socialId, provider } = userInfo;
 
-    if (!existingAccount) {
-      throw new NotFoundException('Account not found');
-    }
-
-    const accessToken = this.generateAccessToken({
-      sub: existingAccount.user.id,
-      tokenType: TokenType.ACCESS,
-    });
-    const refreshToken = this.generateRefreshToken({
-      sub: existingAccount.user.id,
-      tokenType: TokenType.REFRESH,
-    });
-
-    existingAccount.refreshToken = refreshToken;
-    await this.accountRepository.save(existingAccount);
-
-    return {
-      id: existingAccount.user.id,
-      accessToken,
-      refreshToken,
-    };
-  }
-
-  async socialSignup(
-    email: string,
-    socialId: string,
-    provider: Provider,
-    nickname?: string,
-  ): Promise<SignupResDto> {
-    const isExistingAccount = await this.accountRepository.findOneBy({ email });
-    if (isExistingAccount) {
-      throw new BadRequestException('Email already exists');
-    }
-
-    const user = await this.userRepository.save(
-      this.userRepository.create({
-        nickname: nickname,
-      }),
+    // 기존 계정이 있는지 확인
+    const existingAccount = await this.findAccountByEmailAndProvider(
+      email,
+      provider,
     );
-
-    // 3. UserRolesEntity 생성 및 저장 (기본 Role: USER)
-    const role = await this.roleRepository.findOneBy({ role: Role.USER });
-    if (!role) {
-      throw new InternalServerErrorException(
-        'Default USER role is not available',
-      );
+    if (existingAccount) {
+      return this.generateTokensForAccount(existingAccount);
     }
 
-    const userRole = this.userRolesRepository.create({ user, role });
-    await this.userRolesRepository.save(userRole);
+    // 새 계정 생성
+    const user = await this.createUserWithRole(Role.USER);
 
-    // 4. Account 생성 및 저장
-    const refreshToken = this.generateRefreshToken({
-      sub: user.id,
-      tokenType: TokenType.REFRESH,
+    const { refreshToken, accessToken } = await this.createAccount({
+      email,
+      socialId,
+      provider,
+      user,
     });
 
-    await this.accountRepository.save(
-      this.accountRepository.create({
-        email,
-        socialId,
-        provider,
-        user,
-        refreshToken,
-      }),
-    );
-
-    // 5. AccessToken 생성 후 반환
-    const accessToken = this.generateAccessToken({
-      sub: user.id,
-      tokenType: TokenType.ACCESS,
-    });
-
-    return {
-      id: user.id,
-      accessToken,
-      refreshToken,
-    };
+    return { id: user.id, accessToken, refreshToken };
   }
 
   async signin(email: string, password: string) {
-    const account = await this.accountRepository.findOne({
-      where: { email },
-      relations: ['user'],
-    });
-
+    const account = await this.findAccountByEmail(email);
     if (!account || !(await bcrypt.compare(password, account.password))) {
       throw new BadRequestException('Invalid email or password');
     }
-
-    const accessToken = this.generateAccessToken({
-      sub: account.user.id,
-      tokenType: TokenType.ACCESS,
-    });
-    const refreshToken = this.generateRefreshToken({
-      sub: account.user.id,
-      tokenType: TokenType.REFRESH,
-    });
-
-    account.refreshToken = refreshToken;
-    await this.accountRepository.save(account);
-
-    return {
-      accessToken,
-      refreshToken,
-    };
+    return this.generateTokensForAccount(account);
   }
 
   async refresh(token: string, userId: string) {
@@ -242,39 +134,73 @@ export class AuthService {
       where: { user: { id: userId } },
       relations: ['user'],
     });
+    if (!account) throw new NotFoundException('Account not found');
+    return this.generateTokensForAccount(account);
+  }
 
-    const accessToken = this.generateAccessToken({
-      sub: account.user.id,
-      tokenType: TokenType.ACCESS,
-    });
-    const refreshToken = this.generateAccessToken({
+  // Private 헬퍼 메서드
+  private async hashPassword(password: string): Promise<string> {
+    const saltRound = Number(this.configService.get<string>('jwt.salt')) || 10;
+    return bcrypt.hash(password, saltRound);
+  }
+
+  private async createUserWithRole(roleType: Role): Promise<User> {
+    const user = await this.userRepository.save(this.userRepository.create());
+    const role = await this.roleRepository.findOneBy({ role: roleType });
+    if (!role) throw new InternalServerErrorException('Role not found');
+    await this.userRolesRepository.save(
+      this.userRolesRepository.create({ user, role }),
+    );
+    return user;
+  }
+
+  private async createAccount(accountData: Partial<Account>) {
+    const account = await this.accountRepository.save(
+      this.accountRepository.create(accountData),
+    );
+    const refreshToken = this.generateRefreshToken({
       sub: account.user.id,
       tokenType: TokenType.REFRESH,
     });
     account.refreshToken = refreshToken;
     await this.accountRepository.save(account);
+
+    const accessToken = this.generateAccessToken({
+      sub: account.user.id,
+      tokenType: TokenType.ACCESS,
+    });
+
     return { accessToken, refreshToken };
   }
 
-  async handleSocialLoginOrSignup(userInfo: {
-    email: string;
-    socialId: string;
-    provider: Provider;
-    nickname?: string;
-  }): Promise<SignupResDto> {
-    const { email, socialId, provider, nickname } = userInfo;
-
-    const existingAccount = await this.findAccountByEmailAndProvider(email, provider);
-
-    if (existingAccount) {
-      return this.socialLogin(email, socialId, provider);
-    }
-
-    return this.socialSignup(email, socialId, provider, nickname);
+  private async findAccountByEmail(email: string) {
+    return this.accountRepository.findOne({
+      where: { email },
+      relations: ['user'],
+    });
   }
 
-  async findAccountByEmailAndProvider(email: string, social: Provider) {
-    return this.accountRepository.findOneBy({ email, provider: social });
+  private async findAccountByEmailAndProvider(
+    email: string,
+    provider: Provider,
+  ) {
+    return this.accountRepository.findOneBy({ email, provider });
+  }
+
+  private async generateTokensForAccount(account: Account) {
+    const accessToken = this.generateAccessToken({
+      sub: account.user.id,
+      tokenType: TokenType.ACCESS,
+    });
+    const refreshToken = this.generateRefreshToken({
+      sub: account.user.id,
+      tokenType: TokenType.REFRESH,
+    });
+
+    account.refreshToken = refreshToken;
+    await this.accountRepository.save(account);
+
+    return { id: account.user.id, accessToken, refreshToken };
   }
 
   private generateAccessToken(payload: Payload) {
@@ -286,9 +212,6 @@ export class AuthService {
   }
 
   private generateRandomNumber() {
-    const minNumber = 100000;
-    const maxNumber = 999999;
-    return Math.floor(Math.random() * (maxNumber - minNumber + 1)) + minNumber;
+    return Math.floor(100000 + Math.random() * 900000); // 6자리 랜덤 숫자
   }
-
 }
