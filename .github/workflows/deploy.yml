@@ -3,10 +3,12 @@ on:
   push:
     branches:
       - develop
+
 jobs:
   build-and-deploy:
     name: Build, Push, and Deploy to EC2
     runs-on: ubuntu-latest
+
     steps:
     # 1. 리포지토리 체크아웃
     - name: Checkout repository
@@ -39,6 +41,8 @@ jobs:
         key: ${{ secrets.EC2_SSH_KEY }}
         script: |
           cd /home/ec2-user/app
+
+          # docker-compose.yml 최신 상태로 업데이트 (필요 시 Git Pull 또는 SCP로 전송)
           docker-compose down || true
           docker-compose pull
           docker-compose up -d
