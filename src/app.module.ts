@@ -33,6 +33,7 @@ import { RoleEntitySubscriber } from './subscriber/role-entity.subscriber';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 import { RolesGuard } from './auth/guards/roles.guard';
 import auth20SecretConfig from './config/auth20-secret.config';
+import fileUploadConfig from './config/file-upload.config';
 
 @Module({
   imports: [
@@ -45,6 +46,7 @@ import auth20SecretConfig from './config/auth20-secret.config';
         mailConfig,
         jwtConfig,
         auth20SecretConfig,
+        fileUploadConfig,
       ],
     }),
     TypeOrmModule.forRootAsync({

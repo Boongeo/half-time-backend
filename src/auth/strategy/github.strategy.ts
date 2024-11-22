@@ -21,13 +21,12 @@ export class GitHubStrategy extends PassportStrategy(Strategy, 'github') {
 
   async validate(accessToken: string, refreshToken: string, profile: Profile) {
     console.log('profile', profile);
-    const { emails, id, username } = profile;
+    const { emails, id } = profile;
     const email = emails[0].value;
-    return this.authService.handleSocialLoginOrSignup({
+    return this.authService.socialLoginOrSignup({
       email,
       socialId: id,
       provider: Provider.GITHUB,
-      nickname: username,
     });
   }
 }

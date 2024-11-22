@@ -1,6 +1,22 @@
-import { BadRequestException, Body, Controller, Get, Headers, Param, Post, Put, Req, UseGuards } from '@nestjs/common';
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Get,
+  Headers,
+  Param,
+  Post,
+  Put,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiExtraModels, ApiTags } from '@nestjs/swagger';
-import { EmailReqDto, SigninReqDto, SignupReqDto, VerifyTokenReqDto } from './dto/req.dto';
+import {
+  EmailReqDto,
+  SigninReqDto,
+  SignupReqDto,
+  VerifyTokenReqDto,
+} from './dto/req.dto';
 import { AuthService } from './auth.service';
 import {
   AfterVerifyResDto,
@@ -104,7 +120,7 @@ export class AuthController {
       provider: Provider;
       nickname?: string;
     };
-    return await this.authService.handleSocialLoginOrSignup(user);
+    return await this.authService.socialLoginOrSignup(user);
   }
 
   @Public()
@@ -122,7 +138,7 @@ export class AuthController {
       provider: Provider;
       nickname?: string;
     };
-    return await this.authService.handleSocialLoginOrSignup(user);
+    return await this.authService.socialLoginOrSignup(user);
   }
 
   @Public()
@@ -140,6 +156,6 @@ export class AuthController {
       provider: Provider;
       nickname?: string;
     };
-    return await this.authService.handleSocialLoginOrSignup(user);
+    return await this.authService.socialLoginOrSignup(user);
   }
 }

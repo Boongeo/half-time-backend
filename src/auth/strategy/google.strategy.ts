@@ -27,14 +27,13 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
     refreshToken: string,
     profile: Profile,
   ): Promise<SignupResDto> {
-    const { emails, id, displayName } = profile;
+    const { emails, id } = profile;
     const email = emails[0].value;
 
-    return this.authService.handleSocialLoginOrSignup({
+    return this.authService.socialLoginOrSignup({
       email,
       socialId: id,
       provider: Provider.GOOGLE,
-      nickname: displayName,
     });
   }
 }

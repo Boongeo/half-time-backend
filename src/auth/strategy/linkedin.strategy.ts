@@ -30,14 +30,13 @@ export class LinkedInStrategy extends PassportStrategy(Strategy, 'linkedin') {
     refreshToken: string,
     profile: Profile, // LinkedIn Profile Type
   ): Promise<SignupResDto> {
-    const { emails, id, displayName } = profile;
+    const { emails, id } = profile;
     const email = emails[0].value;
 
-    return this.authService.handleSocialLoginOrSignup({
+    return this.authService.socialLoginOrSignup({
       email,
       socialId: id,
       provider: Provider.LINKEDIN,
-      nickname: displayName,
     });
   }
 }

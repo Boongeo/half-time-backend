@@ -11,7 +11,9 @@ export function initializeSwagger(
   app: INestApplication,
   configService: ConfigService,
 ) {
-  const isDev = configService.get<string>('NODE_ENV') === 'development';
+  const isDev =
+    configService.get<string>('NODE_ENV') === 'development' ||
+    configService.get<string>('NODE_ENV') === 'local';
 
   if (!isDev) return;
 
@@ -20,7 +22,8 @@ export function initializeSwagger(
     basicAuth({
       challenge: true,
       users: {
-        [configService.get<string>('swagger.user')]: configService.get<string>('swagger.password'),
+        [configService.get<string>('swagger.user')]:
+          configService.get<string>('swagger.password'),
       },
     }),
   );
