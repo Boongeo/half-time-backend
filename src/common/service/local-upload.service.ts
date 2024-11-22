@@ -1,4 +1,4 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { Inject, Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
 import * as fs from 'fs';
 import * as path from 'path';
 import { v4 as uuid } from 'uuid';
@@ -10,12 +10,15 @@ export class LocalUploadService implements UploadService {
   private readonly uploadPath: string;
   private readonly relativeUploadPath: string;
 
-  constructor(private readonly configService: ConfigService) {
+  constructor(
+    @Inject('winston')
+    private readonly logger: Logger,
+    private readonly configService: ConfigService,
+  ) {
     this.relativeUploadPath = this.configService.get<string>(
       'file-upload.uploadPath',
-    ); // 상대경로
+    );
     this.uploadPath = path.resolve(this.relativeUploadPath);
-
     console.log('Absolute uploadPath:', this.uploadPath);
 
     if (!fs.existsSync(this.uploadPath)) {
@@ -24,27 +27,50 @@ export class LocalUploadService implements UploadService {
   }
 
   async uploadFile(file: Express.Multer.File): Promise<string> {
-    console.log('relativeUploadPath:', this.relativeUploadPath);
-    console.log('Absolute uploadPath:', this.uploadPath);
-
-    // 한글 파일 이름 처리 (UUID로 변경 또는 URL-safe 방식)
-    const sanitizedFileName = this.sanitizeFileName(file.originalname);
-    const fileName = `${uuid()}-${sanitizedFileName}`;
-    const absoluteFilePath = path.join(this.uploadPath, fileName);
-    const relativeFilePath = path.join(this.relativeUploadPath, fileName);
+    this.logger.debug('Original filename:', file.originalname);
 
     try {
-      fs.writeFileSync(absoluteFilePath, file.buffer); // 파일 저장
-      return relativeFilePath; // 상대 경로 반환
+      const fileExtension = path.extname(file.originalname);
+
+      const nameWithoutExt = path.basename(file.originalname, fileExtension);
+      const normalizedName = this.normalizeFileName(nameWithoutExt);
+
+      const fileName = `${uuid()}_${normalizedName}${fileExtension}`;
+
+      const absoluteFilePath = path.join(this.uploadPath, fileName);
+      const relativeFilePath = path.join(this.relativeUploadPath, fileName);
+
+      this.logger.debug('Saving file:', {
+        originalName: file.originalname,
+        normalizedName: fileName,
+        absolutePath: absoluteFilePath,
+        relativePath: relativeFilePath,
+      });
+
+      await fs.promises.writeFile(absoluteFilePath, file.buffer);
+
+      return relativeFilePath;
     } catch (error) {
+      console.error('File upload error:', error);
       throw new InternalServerErrorException(
-        'Failed to upload file to disk',
+        '파일 업로드 중 오류가 발생했습니다.',
         error.stack,
       );
     }
   }
 
-  private sanitizeFileName(filename: string): string {
-    return filename.replace(/[^\w.\-가-힣]/g, '_').normalize('NFC');
+  private normalizeFileName(filename: string): string {
+    let normalized = filename
+      .normalize('NFD')
+      .replace(/[^\w\s가-힣ㄱ-ㅎㅏ-ㅣ.\-]/g, '')
+      .replace(/\s+/g, '_')
+      .normalize('NFC')
+      .slice(0, 200);
+
+    if (!normalized) {
+      normalized = 'unnamed_file';
+    }
+
+    return normalized;
   }
 }
