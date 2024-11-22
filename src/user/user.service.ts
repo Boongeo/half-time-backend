@@ -36,5 +36,10 @@ export class UserService {
     user.nickname = nickname;
     user.profileImage = filePath;
     await this.userRepository.save(user);
+    return {
+      id: user.id,
+      nickname: user.nickname,
+      profileImage: user.profileImage,
+    };
   }
 }
