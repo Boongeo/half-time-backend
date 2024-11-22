@@ -6,10 +6,12 @@ import { Roles } from '../common/decorater/roles.decorator';
 import { Role } from './enums/role.enum';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { RegisterReqDto } from './dto/req.dto';
+import { ApiPostResponse } from '../common/decorater/swagger.decorator';
+import { RegisterResDto } from './dto/res.dto';
 
 @Roles(Role.USER)
 @ApiBearerAuth()
-@ApiExtraModels()
+@ApiExtraModels(RegisterResDto)
 @ApiTags('user')
 @Controller('user')
 export class UserController {
@@ -20,16 +22,17 @@ export class UserController {
 
   @Get('test')
   async decoratorTest(@User() user: UserAfterAuth) {
-    console.log(user);
+    return this.userService.findOne(user.id);
   }
 
   @Post('register')
-  @UseInterceptors(FileInterceptor('profileImage'))
+  @ApiPostResponse(RegisterResDto)
   @ApiConsumes('multipart/form-data')
   @ApiBody({
     description: 'User registration with profile image',
     type: RegisterReqDto,
   })
+  @UseInterceptors(FileInterceptor('profileImage'))
   async register(
     @User() user: UserAfterAuth,
     @Body() nickname: RegisterReqDto,
