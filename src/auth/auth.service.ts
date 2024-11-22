@@ -155,13 +155,13 @@ export class AuthService {
   }
 
   private async createAccount(accountData: Partial<Account>) {
-    const account = await this.accountRepository.save(
-      this.accountRepository.create(accountData),
-    );
     const refreshToken = this.generateRefreshToken({
-      sub: account.user.id,
+      sub: accountData.user.id,
       tokenType: TokenType.REFRESH,
     });
+    const account = await this.accountRepository.save(
+      this.accountRepository.create({ ...accountData, refreshToken }),
+    );
     account.refreshToken = refreshToken;
     await this.accountRepository.save(account);
 

@@ -10,6 +10,6 @@ export const User = createParamDecorator(
 
 export interface UserAfterAuth {
   id: string;
-  nickname: string;
+  nickname?: string;
   roles: Role[];
 }
