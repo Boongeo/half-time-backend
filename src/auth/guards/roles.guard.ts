@@ -18,7 +18,6 @@ export class RolesGuard extends BaseGuard {
       'ROLES_KEY',
       [context.getHandler(), context.getClass()],
     );
-    console.log(requiredRoles);
 
     if (!requiredRoles) {
       return true;
@@ -26,10 +25,6 @@ export class RolesGuard extends BaseGuard {
 
     const request = context.switchToHttp().getRequest();
     const user = request.user;
-
-    console.log(user);
-    console.log(user);
-    console.log(user);
 
     if (
       !user ||
