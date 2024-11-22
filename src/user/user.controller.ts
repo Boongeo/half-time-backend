@@ -35,9 +35,6 @@ export class UserController {
     @Body() nickname: RegisterReqDto,
     @UploadedFile() profileImage: Express.Multer.File,
   ) {
-    console.log(user);
-    console.log(nickname);
-    console.log(profileImage);
     return this.userService.register(user, nickname, profileImage);
   }
 }

@@ -10,7 +10,7 @@ import { UploadService } from '../common/interfaces/upload.service';
 @Injectable()
 export class UserService {
   constructor(
-    @Inject('UploadService') // 토큰 이름으로 주입
+    @Inject('UploadService')
     private readonly uploadService: UploadService,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
@@ -32,7 +32,9 @@ export class UserService {
   ) {
     const user = await this.userRepository.findOneBy({ id });
     if (!user) throw new NotFoundException('User not found');
+    const filePath = await this.uploadService.uploadFile(profileImage);
     user.nickname = nickname;
+    user.profileImage = filePath;
     await this.userRepository.save(user);
   }
 }

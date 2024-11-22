@@ -34,7 +34,7 @@ async function bootstrap() {
   });
 
   const configService = app.get(ConfigService);
-  app.use('/upload', express.static(join(__dirname, '..', 'upload')));
+  app.use('/uploads', express.static(join(__dirname, '..', 'uploads')));
   app.useLogger(WinstonModule.createLogger(configService.get('logger')));
   app.setGlobalPrefix('api');
   app.useGlobalPipes(
