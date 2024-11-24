@@ -24,7 +24,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
   async validate(payload: any): Promise<UserAfterAuth> {
     const user = await this.userRepository.findOne({
       where: { id: payload.sub },
-      relations: ['userRoles', 'userRoles.role'], // RoleEntity까지 로드
+      relations: ['userRoles', 'userRoles.role', 'account'],
     });
 
     if (!user) {
@@ -35,7 +35,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
 
     return {
       id: user.id,
-      nickname: user.nickname,
+      email: user.account.email,
       roles,
     };
   }

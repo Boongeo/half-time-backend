@@ -6,6 +6,7 @@ import { UserAfterAuth } from '../common/decorater/user.decorator';
 import { RegisterReqDto } from './dto/req.dto';
 import { Transactional } from 'typeorm-transactional';
 import { UploadService } from '../common/interfaces/upload.service';
+import { MyInfoResDto } from './dto/res.dto';
 
 @Injectable()
 export class UserService {
@@ -16,12 +17,13 @@ export class UserService {
     private readonly userRepository: Repository<User>,
   ) {}
 
-  async findOne(userId: string) {
-    return await this.userRepository
-      .findOneByOrFail({ id: userId })
+  async findMyProfile(userAfterAuth: UserAfterAuth) {
+    const user = await this.userRepository
+      .findOneByOrFail({ id: userAfterAuth.id })
       .catch(() => {
         throw new NotFoundException('User not found');
       });
+    return MyInfoResDto.toDto(userAfterAuth, user);
   }
 
   @Transactional()

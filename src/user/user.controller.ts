@@ -7,23 +7,15 @@ import { Role } from './enums/role.enum';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { RegisterReqDto } from './dto/req.dto';
 import { ApiPostResponse } from '../common/decorater/swagger.decorator';
-import { RegisterResDto } from './dto/res.dto';
+import { MyInfoResDto, RegisterResDto } from './dto/res.dto';
 
 @Roles(Role.USER)
 @ApiBearerAuth()
-@ApiExtraModels(RegisterResDto)
-@ApiTags('user')
-@Controller('user')
+@ApiExtraModels(RegisterResDto, MyInfoResDto)
+@ApiTags('users')
+@Controller('users')
 export class UserController {
-  constructor(
-    private readonly userService: UserService,
-    @Inject('winston') private readonly logger: Logger,
-  ) {}
-
-  @Get('test')
-  async decoratorTest(@User() user: UserAfterAuth) {
-    return this.userService.findOne(user.id);
-  }
+  constructor(private readonly userService: UserService) {}
 
   @Post('register')
   @ApiPostResponse(RegisterResDto)
@@ -39,5 +31,11 @@ export class UserController {
     @UploadedFile() profileImage: Express.Multer.File,
   ) {
     return this.userService.register(user, nickname, profileImage);
+  }
+
+  @Get('me')
+  @ApiPostResponse(MyInfoResDto)
+  async me(@User() userAfterAuth: UserAfterAuth) {
+    return await this.userService.findMyProfile(userAfterAuth);
   }
 }
