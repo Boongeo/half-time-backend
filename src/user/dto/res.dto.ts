@@ -1,12 +1,27 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Role } from '../enums/role.enum';
+import { UserAfterAuth } from '../../common/decorater/user.decorator';
+import { User } from '../entity/user.entity';
 
-export class RegisterResDto {
+export class UserInfoResDto {
   @ApiProperty({ required: true })
-  id: string;
+  email: string;
 
   @ApiProperty({ required: true })
   nickname: string;
 
   @ApiProperty({ required: true })
-  profileImage: string;
+  roles: Role[];
+
+  @ApiProperty({ required: true })
+  profileImage?: string;
+
+  static toDto(userAfterAuth: UserAfterAuth, user: User) {
+    return {
+      email: userAfterAuth.email,
+      nickname: user.nickname,
+      roles: userAfterAuth.roles,
+      profileImage: user.profileImage,
+    };
+  }
 }

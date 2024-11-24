@@ -8,7 +8,7 @@ import { UserRolesEntity } from './user-roles.entity';
 @Entity()
 export class User extends BaseEntity {
   @Column({ nullable: true })
-  profileImage: string;
+  profileImage?: string;
 
   @Column({ nullable: true, unique: true })
   nickname: string;
