@@ -1,3 +1,10 @@
 export interface UploadService {
-  uploadFile(file: Express.Multer.File): Promise<string>; // 업로드된 파일 URL/경로 반환
+  uploadFile(file: Express.Multer.File): Promise<string>;
+
+  async;
+
+  updateFile(
+    profileImage: Express.Multer.File,
+    existingFilePath: string,
+  ): Promise<string>;
 }

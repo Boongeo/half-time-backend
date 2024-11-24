@@ -1,4 +1,9 @@
-import { Inject, Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+} from '@nestjs/common';
 import * as fs from 'fs';
 import * as path from 'path';
 import { v4 as uuid } from 'uuid';
@@ -19,19 +24,20 @@ export class LocalUploadService implements UploadService {
       'file-upload.uploadPath',
     );
     this.uploadPath = path.resolve(this.relativeUploadPath);
-    console.log('Absolute uploadPath:', this.uploadPath);
+    this.logger.log('Absolute uploadPath:', this.uploadPath);
 
     if (!fs.existsSync(this.uploadPath)) {
       fs.mkdirSync(this.uploadPath, { recursive: true });
     }
   }
 
+  async: any;
+
   async uploadFile(file: Express.Multer.File): Promise<string> {
     this.logger.debug('Original filename:', file.originalname);
 
     try {
       const fileExtension = path.extname(file.originalname);
-
       const nameWithoutExt = path.basename(file.originalname, fileExtension);
       const normalizedName = this.normalizeFileName(nameWithoutExt);
 
@@ -55,6 +61,34 @@ export class LocalUploadService implements UploadService {
       throw new InternalServerErrorException(
         '파일 업로드 중 오류가 발생했습니다.',
         error.stack,
+      );
+    }
+  }
+
+  async updateFile(
+    profileImage: Express.Multer.File,
+    existingFilePath?: string,
+  ): Promise<string> {
+    try {
+      if (existingFilePath) {
+        const absoluteFilePath = path.resolve(existingFilePath);
+        if (fs.existsSync(absoluteFilePath)) {
+          await fs.promises.unlink(absoluteFilePath);
+          this.logger.debug('Deleted existing file:', absoluteFilePath);
+        } else {
+          this.logger.warn(
+            'Existing file not found, skipping deletion:',
+            absoluteFilePath,
+          );
+        }
+      }
+
+      // 새 파일 업로드
+      return await this.uploadFile(profileImage);
+    } catch (error) {
+      console.error('File update error:', error);
+      throw new InternalServerErrorException(
+        '파일 업데이트 중 오류가 발생했습니다.',
       );
     }
   }
