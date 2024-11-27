@@ -33,6 +33,8 @@ async function bootstrap() {
     bufferLogs: true,
   });
 
+  console.log('test');
+
   const configService = app.get(ConfigService);
   app.use('/uploads', express.static(join(__dirname, '..', 'uploads')));
   app.useLogger(WinstonModule.createLogger(configService.get('logger')));

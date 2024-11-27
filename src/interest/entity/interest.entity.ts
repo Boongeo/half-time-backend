@@ -9,7 +9,7 @@ export class Interest extends BaseEntity {
   mentorInterest: MentorInterest[];
 
   @OneToMany(() => MenteeInterest, (menteeInterest) => menteeInterest.interest)
-  menteeInterest: MenteeInterest[];
+  menteeInterests: MenteeInterest[];
 
   // 추후 ADMIN 이 관심사를 추가할 수 있도록 하기 위해 추가한 컬럼입니다.
   @Column()

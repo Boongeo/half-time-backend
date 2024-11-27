@@ -5,9 +5,9 @@ import { Mentee } from './mentee.entity';
 
 @Entity()
 export class MenteeInterest extends BaseEntity {
-  @ManyToOne(() => Mentee, (mentor) => mentor.techStacks)
+  @ManyToOne(() => Mentee, (mentee) => mentee.interests)
   mentee: Mentee;
 
-  @ManyToOne(() => Interest, (interest) => interest.mentorInterest)
+  @ManyToOne(() => Interest, (interest) => interest.menteeInterests)
   interest: Interest;
 }

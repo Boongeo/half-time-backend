@@ -28,6 +28,7 @@ import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 import { RolesGuard } from './auth/guards/roles.guard';
 import auth20SecretConfig from './config/auth20-secret.config';
 import fileUploadConfig from './config/file-upload.config';
+import { InterestModule } from './interest/interest.module';
 
 @Module({
   imports: [
@@ -90,6 +91,7 @@ import fileUploadConfig from './config/file-upload.config';
     MentoringSessionModule,
     TechStackModule,
     MailModule,
+    InterestModule,
   ],
   controllers: [],
   providers: [

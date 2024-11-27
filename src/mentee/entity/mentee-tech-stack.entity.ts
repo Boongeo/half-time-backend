@@ -8,6 +8,6 @@ export class MenteeTechStack extends BaseEntity {
   @ManyToOne(() => Mentee, (mentee) => mentee.techStacks)
   mentee: Mentee;
 
-  @ManyToOne(() => TechStack, (techStack) => techStack.mentorTechStacks)
+  @ManyToOne(() => TechStack, (techStack) => techStack.menteeTechStacks)
   techStack: TechStack;
 }
