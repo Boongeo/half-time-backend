@@ -1,7 +1,8 @@
 import { Column, Entity, JoinColumn, OneToMany, OneToOne } from 'typeorm';
 import { BaseEntity } from '../../common/entity/base.entity';
 import { User } from '../../user/entity/user.entity';
-import { MentorTechStack } from '../../mentor-tech-stack/entity/mentor-tech-stack.entity';
+import { MentorTechStack } from './mentor-tech-stack.entity';
+import { MentorInterest } from './mentor-interest.entity';
 
 @Entity()
 export class Mentor extends BaseEntity {
@@ -14,4 +15,7 @@ export class Mentor extends BaseEntity {
 
   @OneToMany(() => MentorTechStack, (mentorTechStack) => mentorTechStack.mentor)
   techStacks: MentorTechStack[];
+
+  @OneToMany(() => MentorInterest, (mentorInterest) => mentorInterest.mentor)
+  interests: MentorInterest[];
 }
