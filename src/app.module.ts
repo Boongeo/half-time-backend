@@ -10,7 +10,6 @@ import { BoardModule } from './board/board.module';
 import { MenteeModule } from './mentee/mentee.module';
 import { MentorModule } from './mentor/mentor.module';
 import { MentorAvailabilityModule } from './mentor-availability/mentor-availability.module';
-import { MentorTechStackModule } from './mentor-tech-stack/mentor-tech-stack.module';
 import { MentoringSessionModule } from './mentoring-session/mentoring-session.module';
 import { TechStackModule } from './tech-stack/tech-stack.module';
 import loggerConfig from './config/logger.config';
@@ -88,7 +87,6 @@ import fileUploadConfig from './config/file-upload.config';
     MenteeModule,
     MentorModule,
     MentorAvailabilityModule,
-    MentorTechStackModule,
     MentoringSessionModule,
     TechStackModule,
     MailModule,
