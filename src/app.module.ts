@@ -23,7 +23,7 @@ import jwtConfig from './config/jwt.config';
 import { DataSource } from 'typeorm';
 import * as console from 'node:console';
 import { addTransactionalDataSource } from 'typeorm-transactional';
-import { RoleEntitySubscriber } from './subscriber/role-entity.subscriber';
+import { EntitySubscriber } from './subscriber/entity.subscriber';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 import { RolesGuard } from './auth/guards/roles.guard';
 import auth20SecretConfig from './config/auth20-secret.config';
@@ -96,7 +96,7 @@ import { InterestModule } from './interest/interest.module';
   controllers: [],
   providers: [
     Logger,
-    RoleEntitySubscriber,
+    EntitySubscriber,
     {
       provide: APP_INTERCEPTOR,
       useClass: HttpErrorInterceptor,

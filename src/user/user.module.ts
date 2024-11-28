@@ -6,11 +6,13 @@ import { RoleEntity } from './entity/roles.entity';
 import { UserRolesEntity } from './entity/user-roles.entity';
 import { UserController } from './user.controller';
 import { CommonModule } from '../common/common.module';
+import { MenteeModule } from '../mentee/mentee.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([User, RoleEntity, UserRolesEntity]),
     CommonModule,
+    MenteeModule,
   ],
   controllers: [UserController],
   providers: [UserService],

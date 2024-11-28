@@ -7,6 +7,7 @@ import { UpdateProfileReqDto } from './dto/req.dto';
 import { Transactional } from 'typeorm-transactional';
 import { UploadService } from '../common/interfaces/upload.service';
 import { UserInfoResDto } from './dto/res.dto';
+import { MenteeService } from '../mentee/mentee.service';
 
 @Injectable()
 export class UserService {
@@ -15,12 +16,14 @@ export class UserService {
     private readonly uploadService: UploadService,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    @Inject()
+    private readonly menteeService: MenteeService,
   ) {}
 
   @Transactional()
   async registerProfile(
     userAfterAuth: UserAfterAuth,
-    { nickname }: UpdateProfileReqDto,
+    { nickname, interestNames, introduction }: UpdateProfileReqDto,
     profileImage: Express.Multer.File,
   ) {
     const user = await this.userRepository.findOneBy({ id: userAfterAuth.id });
@@ -29,6 +32,12 @@ export class UserService {
       user.profileImage = await this.uploadService.uploadFile(profileImage);
     }
     user.nickname = nickname;
+
+    user.mentee = await this.menteeService.createMenteeProfile(
+      user,
+      interestNames,
+      introduction,
+    );
     await this.userRepository.save(user);
     return UserInfoResDto.toDto(userAfterAuth, user);
   }
@@ -56,7 +65,7 @@ export class UserService {
         user.profileImage,
       );
     user.nickname = nickname;
-    await this.userRepository.save(user);
-    return UserInfoResDto.toDto(userAfterAuth, user);
+    const userAfterSave = await this.userRepository.save(user)
+    return UserInfoResDto.toDto(userAfterAuth, userAfterSave);
   }
 }

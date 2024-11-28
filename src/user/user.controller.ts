@@ -1,5 +1,21 @@
-import { Body, Controller, Get, Inject, Patch, Post, Put, UploadedFile, UseInterceptors } from '@nestjs/common';
-import { ApiBearerAuth, ApiBody, ApiConsumes, ApiExtraModels, ApiTags } from '@nestjs/swagger';
+import {
+  Body,
+  Controller,
+  Get,
+  Inject,
+  Patch,
+  Post,
+  Put,
+  UploadedFile,
+  UseInterceptors,
+} from '@nestjs/common';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiConsumes,
+  ApiExtraModels,
+  ApiTags,
+} from '@nestjs/swagger';
 import { UserService } from './user.service';
 import { User, UserAfterAuth } from '../common/decorater/user.decorator';
 import { Roles } from '../common/decorater/roles.decorator';
@@ -26,10 +42,14 @@ export class UserController {
   @UseInterceptors(FileInterceptor('profileImage'))
   async register(
     @User() user: UserAfterAuth,
-    @Body() nickname: UpdateProfileReqDto,
+    @Body() updateProfileReqDto: UpdateProfileReqDto,
     @UploadedFile() profileImage?: Express.Multer.File,
   ) {
-    return this.userService.registerProfile(user, nickname, profileImage);
+    return this.userService.registerProfile(
+      user,
+      updateProfileReqDto,
+      profileImage,
+    );
   }
 
   @Get('me')

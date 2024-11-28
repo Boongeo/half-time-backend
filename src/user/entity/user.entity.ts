@@ -24,4 +24,9 @@ export class User extends BaseEntity {
 
   @OneToMany(() => UserRolesEntity, (userRoles) => userRoles.user)
   userRoles: UserRolesEntity[];
+
+  setMentee(mentee: Mentee) {
+    this.mentee = mentee;
+    mentee.user = this;
+  }
 }
