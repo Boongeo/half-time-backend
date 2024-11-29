@@ -8,6 +8,12 @@ import {
 } from 'class-validator';
 import { Transform } from 'class-transformer';
 
+export class FindUserReqDto {
+  @ApiProperty({ required: true, example: 'uuid' })
+  @IsString()
+  id: string;
+}
+
 export class UpdateProfileReqDto {
   @ApiProperty({ required: true, example: 'nickname' })
   @MinLength(2)
