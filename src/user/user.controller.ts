@@ -22,8 +22,6 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { FindUserReqDto, UpdateProfileReqDto } from './dto/req.dto';
 import { ApiPostResponse } from '../common/decorater/swagger.decorator';
 import { AfterRoleAssignDto, UserInfoResDto } from './dto/res.dto';
-import { Public } from '../common/decorater/public.decorator';
-import { RolesGuard } from '../auth/guards/roles.guard';
 
 @Roles(Role.USER)
 @ApiBearerAuth()
