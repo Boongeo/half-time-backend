@@ -1,4 +1,4 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './entity/user.entity';
@@ -6,8 +6,11 @@ import { UserAfterAuth } from '../common/decorater/user.decorator';
 import { UpdateProfileReqDto } from './dto/req.dto';
 import { Transactional } from 'typeorm-transactional';
 import { UploadService } from '../common/interfaces/upload.service';
-import { UserInfoResDto } from './dto/res.dto';
+import { AfterRoleAssignDto, UserInfoResDto } from './dto/res.dto';
 import { MenteeService } from '../mentee/mentee.service';
+import { RoleEntity } from './entity/roles.entity';
+import { Role } from './enums/role.enum';
+import { UserRolesEntity } from './entity/user-roles.entity';
 
 @Injectable()
 export class UserService {
@@ -16,6 +19,10 @@ export class UserService {
     private readonly uploadService: UploadService,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    @InjectRepository(RoleEntity)
+    private readonly roleRepository: Repository<RoleEntity>,
+    @InjectRepository(UserRolesEntity)
+    private readonly userRolesRepository: Repository<UserRolesEntity>,
     @Inject()
     private readonly menteeService: MenteeService,
   ) {}
@@ -65,7 +72,36 @@ export class UserService {
         user.profileImage,
       );
     user.nickname = nickname;
-    const userAfterSave = await this.userRepository.save(user)
+    const userAfterSave = await this.userRepository.save(user);
     return UserInfoResDto.toDto(userAfterAuth, userAfterSave);
+  }
+
+  @Transactional()
+  async roleAssigned(id: string) {
+    const currentUserRoles = await this.userRolesRepository.find({
+      where: {
+        user: { id },
+      },
+      relations: ['user', 'role'],
+    });
+
+    const admin = await this.roleRepository.findOneByOrFail({
+      role: Role.ADMIN,
+    });
+
+    if (currentUserRoles.some((userRole) => userRole.role.role === Role.ADMIN))
+      throw new BadRequestException('Already assigned');
+
+    await this.userRolesRepository.save({
+      user: currentUserRoles[0].user,
+      role: admin,
+    });
+
+    const updatedUser = await this.userRepository.findOneOrFail({
+      where: { id },
+      relations: ['userRoles', 'userRoles.role'],
+    });
+
+    return AfterRoleAssignDto.toDto(updatedUser);
   }
 }

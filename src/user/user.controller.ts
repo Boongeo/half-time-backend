@@ -2,10 +2,8 @@ import {
   Body,
   Controller,
   Get,
-  Inject,
   Patch,
   Post,
-  Put,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
@@ -21,13 +19,15 @@ import { User, UserAfterAuth } from '../common/decorater/user.decorator';
 import { Roles } from '../common/decorater/roles.decorator';
 import { Role } from './enums/role.enum';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { UpdateProfileReqDto } from './dto/req.dto';
+import { FindUserReqDto, UpdateProfileReqDto } from './dto/req.dto';
 import { ApiPostResponse } from '../common/decorater/swagger.decorator';
-import { UserInfoResDto } from './dto/res.dto';
+import { AfterRoleAssignDto, UserInfoResDto } from './dto/res.dto';
+import { Public } from '../common/decorater/public.decorator';
+import { RolesGuard } from '../auth/guards/roles.guard';
 
 @Roles(Role.USER)
 @ApiBearerAuth()
-@ApiExtraModels(UserInfoResDto)
+@ApiExtraModels(UserInfoResDto, AfterRoleAssignDto)
 @ApiTags('users')
 @Controller('users')
 export class UserController {
@@ -72,5 +72,12 @@ export class UserController {
     @UploadedFile() profileImage?: Express.Multer.File,
   ) {
     return this.userService.updateProfile(user, nickname, profileImage);
+  }
+
+  @Roles(Role.ADMIN)
+  @Patch('role-assigned')
+  @ApiPostResponse(AfterRoleAssignDto)
+  async roleAssigned(@Body() { id }: FindUserReqDto) {
+    return this.userService.roleAssigned(id);
   }
 }
