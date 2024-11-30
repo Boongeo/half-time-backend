@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Interest } from '../interest/entity/interest.entity';
@@ -8,6 +8,9 @@ import { Mentor } from './entity/mentor.entity';
 import { MentorInterest } from './entity/mentor-interest.entity';
 import { MentorTechStack } from './entity/mentor-tech-stack.entity';
 import { TechStack } from '../tech-stack/entity/tech-stack.entity';
+import { UserAfterAuth } from '../common/decorater/user.decorator';
+import { UserService } from '../user/user.service';
+import { MyMentorProfileResDto } from './dto/res.dto';
 
 @Injectable()
 export class MentorService {
@@ -22,15 +25,19 @@ export class MentorService {
     private readonly interestRepository: Repository<Interest>,
     @InjectRepository(TechStack)
     private readonly techStackRepository: Repository<TechStack>,
+    @Inject()
+    private readonly userService: UserService,
   ) {}
 
   @Transactional()
   async createMentorProfile(
-    user: User,
+    userAfterAuth: UserAfterAuth,
     interestNames: string[],
     techStackNames: string[],
     introduction: string,
   ) {
+    const user = await this.userService.findUserById(userAfterAuth.id);
+
     const interests = await this.interestRepository.find({
       where: interestNames.map((name) => ({ interest: name })),
     });
@@ -67,6 +74,6 @@ export class MentorService {
     await this.mentorInterestRepository.save(mentorInterests);
     await this.mentorTechStackRepository.save(mentorTechStacks);
 
-    return mentor;
+    return MyMentorProfileResDto.toDto(user, mentor);
   }
 }

@@ -41,7 +41,7 @@ export class MenteeService {
     const menteeInterests = interests.map((interest) =>
       this.menteeInterestRepository.create({
         interest,
-        mentee: savedMentee
+        mentee: savedMentee,
       }),
     );
 

@@ -5,10 +5,16 @@ import { MentorTechStack } from './entity/mentor-tech-stack.entity';
 import { MentorInterest } from './entity/mentor-interest.entity';
 import { MentorController } from './mentor.controller';
 import { MentorService } from './mentor.service';
+import { InterestModule } from '../interest/interest.module';
+import { TechStackModule } from '../tech-stack/tech-stack.module';
+import { UserModule } from '../user/user.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Mentor, MentorTechStack, MentorInterest]),
+    InterestModule,
+    TechStackModule,
+    UserModule,
   ],
   exports: [],
   controllers: [MentorController],

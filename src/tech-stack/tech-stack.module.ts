@@ -6,7 +6,7 @@ import { TechStackService } from './tech-stack.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([TechStack])],
-  exports: [],
+  exports: [TypeOrmModule],
   controllers: [TechStackController],
   providers: [TechStackService],
 })

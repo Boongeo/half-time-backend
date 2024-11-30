@@ -27,6 +27,10 @@ export class UserService {
     private readonly menteeService: MenteeService,
   ) {}
 
+  async findUserById(id: string) {
+    return this.userRepository.findOneByOrFail({ id });
+  }
+
   @Transactional()
   async registerProfile(
     userAfterAuth: UserAfterAuth,
