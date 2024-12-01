@@ -1,27 +1,51 @@
-import { Module } from '@nestjs/common';
+import { Logger, MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import postgresConfig from './config/postgres.config';
 import swaggerConfig from './config/swagger.config';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { WinstonModule } from 'nest-winston';
 import { UserModule } from './user/user.module';
-import { AccountModule } from './account/account.module';
+import { AuthModule } from './auth/auth.module';
 import { BoardModule } from './board/board.module';
 import { MenteeModule } from './mentee/mentee.module';
 import { MentorModule } from './mentor/mentor.module';
 import { MentorAvailabilityModule } from './mentor-availability/mentor-availability.module';
-import { MentorTechStackModule } from './mentor-tech-stack/mentor-tech-stack.module';
 import { MentoringSessionModule } from './mentoring-session/mentoring-session.module';
 import { TechStackModule } from './tech-stack/tech-stack.module';
 import loggerConfig from './config/logger.config';
+import { LoggerMiddleware } from './common/middleware/logger.middleware';
+import { MailModule } from './mail/mail.module';
+import mailConfig from './config/mail.config';
+import { CacheModule } from '@nestjs/cache-manager';
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
+import { HttpErrorInterceptor } from './common/interceptor/http-error.interceptor';
+import jwtConfig from './config/jwt.config';
+import { DataSource } from 'typeorm';
+import * as console from 'node:console';
+import { addTransactionalDataSource } from 'typeorm-transactional';
+import { EntitySubscriber } from './subscriber/entity.subscriber';
+import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
+import { RolesGuard } from './auth/guards/roles.guard';
+import auth20SecretConfig from './config/auth20-secret.config';
+import fileUploadConfig from './config/file-upload.config';
+import { InterestModule } from './interest/interest.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [postgresConfig, swaggerConfig, loggerConfig],
+      load: [
+        postgresConfig,
+        swaggerConfig,
+        loggerConfig,
+        mailConfig,
+        jwtConfig,
+        auth20SecretConfig,
+        fileUploadConfig,
+      ],
     }),
     TypeOrmModule.forRootAsync({
+      imports: undefined,
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => {
         const isDev = configService.get('NODE_ENV') === 'development';
@@ -32,12 +56,16 @@ import loggerConfig from './config/logger.config';
           database: configService.get('postgres.database'),
           username: configService.get('postgres.username'),
           password: configService.get('postgres.password'),
-          autoLoadEntities: false,
+          autoLoadEntities: true,
           synchronize: false,
           logging: isDev,
         };
         if (isDev) console.log('Sync postgres with logging enabled');
         return obj;
+      },
+      async dataSourceFactory(option) {
+        if (!option) throw new Error('Invalid options passed');
+        return addTransactionalDataSource(new DataSource(option));
       },
     }),
     WinstonModule.forRootAsync({
@@ -49,17 +77,43 @@ import loggerConfig from './config/logger.config';
         };
       },
     }),
+    CacheModule.register({
+      ttl: 600000,
+      max: 100,
+      isGlobal: true,
+    }),
     UserModule,
-    AccountModule,
+    AuthModule,
     BoardModule,
     MenteeModule,
     MentorModule,
     MentorAvailabilityModule,
-    MentorTechStackModule,
     MentoringSessionModule,
     TechStackModule,
+    MailModule,
+    InterestModule,
   ],
   controllers: [],
-  providers: [],
+  providers: [
+    Logger,
+    EntitySubscriber,
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: HttpErrorInterceptor,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: RolesGuard,
+    },
+  ],
+  exports: [Logger],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer): void {
+    consumer.apply(LoggerMiddleware).forRoutes('*');
+  }
+}
