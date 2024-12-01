@@ -1,9 +1,8 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Interest } from '../interest/entity/interest.entity';
 import { Transactional } from 'typeorm-transactional';
-import { User } from '../user/entity/user.entity';
 import { Mentor } from './entity/mentor.entity';
 import { MentorInterest } from './entity/mentor-interest.entity';
 import { MentorTechStack } from './entity/mentor-tech-stack.entity';
