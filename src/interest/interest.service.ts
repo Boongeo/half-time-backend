@@ -2,6 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Interest } from './entity/interest.entity';
 import { Repository } from 'typeorm';
+import { AllInterestResDto } from './dto/res.dto';
 
 @Injectable()
 export class InterestService {
@@ -19,5 +20,10 @@ export class InterestService {
       interest: interestName,
     });
     return interest;
+  }
+
+  async getAllInterests() {
+    const interests = await this.interestRepository.find();
+    return AllInterestResDto.toDto(interests);
   }
 }
