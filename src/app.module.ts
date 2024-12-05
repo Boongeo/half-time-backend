@@ -16,7 +16,6 @@ import loggerConfig from './config/logger.config';
 import { LoggerMiddleware } from './common/middleware/logger.middleware';
 import { MailModule } from './mail/mail.module';
 import mailConfig from './config/mail.config';
-import { CacheModule } from '@nestjs/cache-manager';
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { HttpErrorInterceptor } from './common/interceptor/http-error.interceptor';
 import jwtConfig from './config/jwt.config';
@@ -29,6 +28,9 @@ import { RolesGuard } from './auth/guards/roles.guard';
 import auth20SecretConfig from './config/auth20-secret.config';
 import fileUploadConfig from './config/file-upload.config';
 import { InterestModule } from './interest/interest.module';
+import * as redisStore from 'cache-manager-redis-store';
+import redisConfig from './config/redis.config';
+import { CacheModule } from '@nestjs/cache-manager';
 
 @Module({
   imports: [
@@ -42,6 +44,7 @@ import { InterestModule } from './interest/interest.module';
         jwtConfig,
         auth20SecretConfig,
         fileUploadConfig,
+        redisConfig,
       ],
     }),
     TypeOrmModule.forRootAsync({
@@ -77,10 +80,17 @@ import { InterestModule } from './interest/interest.module';
         };
       },
     }),
-    CacheModule.register({
-      ttl: 600000,
-      max: 100,
+    CacheModule.registerAsync({
       isGlobal: true,
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => {
+        return {
+          store: redisStore,
+          host: configService.get('redis.host'),
+          port: configService.get('redis.port'),
+          ttl: 60,
+        };
+      },
     }),
     UserModule,
     AuthModule,
