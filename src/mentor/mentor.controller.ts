@@ -9,7 +9,11 @@ import {
   ApiGetItemsResponse,
   ApiPostResponse,
 } from '../common/decorater/swagger.decorator';
-import { MentorProfilesResDto, MyMentorProfileResDto } from './dto/res.dto';
+import {
+  MentorProfilesResDto,
+  MentorStatusResDto,
+  MyMentorProfileResDto,
+} from './dto/res.dto';
 
 @ApiTags('mentors')
 @ApiBearerAuth()
@@ -17,25 +21,32 @@ import { MentorProfilesResDto, MyMentorProfileResDto } from './dto/res.dto';
   MyMentorProfileResDto,
   MentorProfilesResDto,
   MentorProfileReqDto,
+  MentorStatusResDto,
 )
 @Roles(Role.USER)
 @Controller('mentors')
 export class MentorController {
   constructor(private readonly mentorService: MentorService) {}
 
-  @Post('register')
+  @Post('mentor-registration')
   @ApiPostResponse(MyMentorProfileResDto)
   async createMentorProfile(
     @User() userAfterAuth: UserAfterAuth,
     @Body()
-    { techStackNames, interestNames, introduction }: MentorProfileReqDto,
+    { techStack, interest, introduction }: MentorProfileReqDto,
   ) {
     return this.mentorService.createMentorProfile(
       userAfterAuth,
-      interestNames,
-      techStackNames,
+      interest,
+      techStack,
       introduction,
     );
+  }
+
+  @Get('mentor-registration/status')
+  @ApiGetItemsResponse(MentorStatusResDto)
+  async getMentorStatus(@User() userAfterAuth: UserAfterAuth) {
+    return this.mentorService.getMyMentorStatus(userAfterAuth);
   }
 
   @Get()

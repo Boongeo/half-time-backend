@@ -95,3 +95,8 @@ export class MentorProfilesResDto {
   @IsNumber()
   total: number;
 }
+
+export class MentorStatusResDto {
+  @ApiProperty({ type: MentorProfileResDto })
+  mentor: MentorProfileResDto;
+}

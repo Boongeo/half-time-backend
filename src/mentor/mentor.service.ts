@@ -133,4 +133,17 @@ export class MentorService {
     const mentor = await queryBuilder.getOne();
     return MentorProfileResDto.toDto(mentor.user, mentor);
   }
+
+  async getMyMentorStatus(userAfterAuth: UserAfterAuth) {
+    const mentor = await this.mentorRepository.findOne({
+      where: { user: { id: userAfterAuth.id } },
+    });
+    if (!mentor) throw new Error('멘토로 등록되지 않은 사용자입니다.');
+
+    return {
+      status: mentor.accept,
+      rejectReason: mentor.rejectReason,
+      updatedAt: mentor.updatedAt,
+    };
+  }
 }
