@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsArray, IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsOptional, IsString } from 'class-validator';
 import { PageReqDto } from '../../common/dto/req.dto';
 
 export class MentorProfileReqDto {
@@ -9,7 +9,7 @@ export class MentorProfileReqDto {
     type: [String],
   })
   @IsArray()
-  interestNames: string[];
+  interest: string[];
 
   @ApiProperty({
     required: true,
@@ -17,7 +17,7 @@ export class MentorProfileReqDto {
     type: [String],
   })
   @IsArray()
-  techStackNames: string[];
+  techStack: string[];
 
   @ApiProperty({
     required: true,
