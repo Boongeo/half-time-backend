@@ -3,3 +3,9 @@ export enum MentorAccept {
   APPROVED = 'approved',
   REJECTED = 'rejected',
 }
+
+export enum MentoringType {
+  ONLINE = 'online',
+  OFFLINE = 'offline',
+  BOTH = 'both',
+}

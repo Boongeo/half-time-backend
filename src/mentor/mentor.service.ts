@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Like, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { Interest } from '../interest/entity/interest.entity';
 import { Transactional } from 'typeorm-transactional';
 import { Mentor } from './entity/mentor.entity';
@@ -10,7 +10,8 @@ import { TechStack } from '../tech-stack/entity/tech-stack.entity';
 import { UserAfterAuth } from '../common/decorater/user.decorator';
 import { UserService } from '../user/user.service';
 import { MentorProfileResDto, MyMentorProfileResDto } from './dto/res.dto';
-import { GetMentorProfilesDto } from './dto/req.dto';
+import { GetMentorProfilesDto, MentorProfileReqDto } from './dto/req.dto';
+import { UploadService } from '../common/interfaces/upload.service';
 
 @Injectable()
 export class MentorService {
@@ -27,14 +28,24 @@ export class MentorService {
     private readonly techStackRepository: Repository<TechStack>,
     @Inject()
     private readonly userService: UserService,
+    @Inject('UploadService')
+    private readonly uploadService: UploadService,
   ) {}
 
   @Transactional()
   async createMentorProfile(
     userAfterAuth: UserAfterAuth,
-    interestNames: string[],
-    techStackNames: string[],
-    introduction: string,
+    {
+      interest: interestNames,
+      techStack: techStackNames,
+      intro: introduction,
+      company,
+      experience,
+      hourlyRate,
+      mentoringType,
+      preferredRegion,
+    }: MentorProfileReqDto,
+    careerProof: Express.Multer.File,
   ) {
     const user = await this.userService.findUserById(userAfterAuth.id);
 
@@ -42,19 +53,48 @@ export class MentorService {
       where: interestNames.map((name) => ({ interest: name })),
     });
     if (interests.length !== interestNames.length) {
-      throw new Error('일치하지 않는 관심사가 있습니다.');
+      const missingInterests = interestNames.filter(
+        (name) => !interests.some((interest) => interest.interest === name),
+      );
+      console.error('일치하지 않는 관심사가 있습니다.', {
+        requested: interestNames,
+        found: interests.map((i) => i.interest),
+        missing: missingInterests,
+      });
+      throw new Error(
+        '일치하지 않는 관심사가 있습니다: ' + missingInterests.join(', '),
+      );
     }
 
     const techStacks = await this.techStackRepository.find({
       where: techStackNames.map((name) => ({ tech: name })),
     });
     if (techStacks.length !== techStackNames.length) {
-      throw new Error('일치하지 않는 기술스택이 있습니다.');
+      const missingTechStacks = techStackNames.filter(
+        (name) => !techStacks.some((techStack) => techStack.tech === name),
+      );
+      console.error('일치하지 않는 기술스택이 있습니다.', {
+        requested: techStackNames,
+        found: techStacks.map((t) => t.tech),
+        missing: missingTechStacks,
+      });
+      throw new Error(
+        '일치하지 않는 기술스택이 있습니다: ' + missingTechStacks.join(', '),
+      );
     }
+
+    const careerProofPath =
+      await this.uploadService.uploadSensitiveFile(careerProof);
 
     const mentor = await this.mentorRepository.save({
       user,
       description: introduction,
+      company,
+      experience,
+      hourlyRate,
+      mentoringType,
+      preferredRegion,
+      careerProofPath,
     });
 
     const mentorInterests = interests.map((interest) =>

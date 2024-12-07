@@ -45,6 +45,7 @@ export class MentorProfileReqDto {
     required: true,
     example: 'Mentor experience.',
   })
+  @Transform(({ value }) => parseFloat(value))
   @IsNumber()
   experience: number;
 
@@ -52,12 +53,13 @@ export class MentorProfileReqDto {
     required: true,
     example: 'Mentor hourlyRate.',
   })
+  @Transform(({ value }) => parseFloat(value))
   @IsNumber()
   hourlyRate: number;
 
   @ApiProperty({
     required: true,
-    example: 'Mentoring Type.',
+    example: MentoringType.ONLINE,
   })
   @IsEnum(MentoringType)
   mentoringType: MentoringType;

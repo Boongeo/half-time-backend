@@ -8,6 +8,7 @@ import { MentorService } from './mentor.service';
 import { InterestModule } from '../interest/interest.module';
 import { TechStackModule } from '../tech-stack/tech-stack.module';
 import { UserModule } from '../user/user.module';
+import { CommonModule } from '../common/common.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { UserModule } from '../user/user.module';
     InterestModule,
     TechStackModule,
     UserModule,
+    CommonModule,
   ],
   exports: [],
   controllers: [MentorController],

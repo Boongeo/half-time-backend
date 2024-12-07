@@ -1,19 +1,31 @@
-import { Body, Controller, Get, Post, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Query,
+  UploadedFile,
+  UseInterceptors,
+} from '@nestjs/common';
 import { MentorService } from './mentor.service';
-import { ApiBearerAuth, ApiExtraModels, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiConsumes,
+  ApiExtraModels,
+  ApiTags,
+} from '@nestjs/swagger';
 import { User, UserAfterAuth } from '../common/decorater/user.decorator';
 import { Roles } from '../common/decorater/roles.decorator';
 import { Role } from '../user/enums/role.enum';
 import { GetMentorProfilesDto, MentorProfileReqDto } from './dto/req.dto';
-import {
-  ApiGetItemsResponse,
-  ApiPostResponse,
-} from '../common/decorater/swagger.decorator';
+import { ApiGetItemsResponse } from '../common/decorater/swagger.decorator';
 import {
   MentorProfilesResDto,
   MentorStatusResDto,
   MyMentorProfileResDto,
 } from './dto/res.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @ApiTags('mentors')
 @ApiBearerAuth()
@@ -29,17 +41,21 @@ export class MentorController {
   constructor(private readonly mentorService: MentorService) {}
 
   @Post('mentor-registration')
-  @ApiPostResponse(MyMentorProfileResDto)
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    description: 'Please submit proof of employment',
+    type: MentorProfileReqDto,
+  })
+  @UseInterceptors(FileInterceptor('careerProof'))
   async createMentorProfile(
     @User() userAfterAuth: UserAfterAuth,
-    @Body()
-    { techStack, interest, introduction }: MentorProfileReqDto,
+    @Body() mentorProfileReqDto: MentorProfileReqDto,
+    @UploadedFile() careerProof: Express.Multer.File,
   ) {
     return this.mentorService.createMentorProfile(
       userAfterAuth,
-      interest,
-      techStack,
-      introduction,
+      mentorProfileReqDto,
+      careerProof,
     );
   }
 
@@ -68,4 +84,13 @@ export class MentorController {
   async getMentorProfile(@Query() mentorId: number) {
     return this.mentorService.getMentorProfile(mentorId);
   }
+
+  // @Roles(Role.ADMIN)
+  // @Get('mentor-registration')
+  // @ApiGetItemsResponse(MentorProfilesResDto)
+  // async getMentorProfilesForAdmin(
+  //   @Query() getMentorAcceptReqDto: GetMentorAcceptReqDto,
+  // ) {
+  //   return this.mentorService.getMentorProfilesForAdmin(getMentorProfilesDto);
+  // }
 }
