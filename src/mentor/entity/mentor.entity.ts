@@ -14,8 +14,9 @@ export class Mentor extends BaseEntity {
     type: 'enum',
     enum: MentorAccept,
     default: MentorAccept.PENDING,
+    nullable: false,
   })
-  accept: MentorAccept;
+  accept: MentorAccept = MentorAccept.PENDING;
 
   @Column({ nullable: true })
   rejectReason: string;
