@@ -49,6 +49,14 @@ export class MentorService {
   ) {
     const user = await this.userService.findUserById(userAfterAuth.id);
 
+    const existMentor = await this.mentorRepository.findOne({
+      where: { user: { id: user.id } },
+    });
+
+    if (existMentor) {
+      throw new Error('이미 등록 요청이 있습니다.');
+    }
+
     const interests = await this.interestRepository.find({
       where: interestNames.map((name) => ({ interest: name })),
     });
