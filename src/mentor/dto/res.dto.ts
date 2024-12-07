@@ -103,8 +103,21 @@ export class MentorProfilesResDto {
 }
 
 export class MentorStatusResDto {
-  @ApiProperty({ type: MentorProfileResDto })
-  mentor: MentorProfileResDto;
+  @ApiProperty({
+    enum: MentorAccept,
+    description: 'Status of mentor acceptance (pending, approved, rejected)',
+  })
+  status: MentorAccept;
+
+  @ApiProperty({
+    description: 'Reason for rejection, if the mentor status is not approved.',
+  })
+  rejectReason: string;
+
+  @ApiProperty({
+    description: 'Date when the mentor status was last updated.',
+  })
+  updateAt: string;
 }
 
 export class MentorAcceptReqDto {
@@ -113,6 +126,4 @@ export class MentorAcceptReqDto {
 
   @ApiProperty({ required: true })
   status: MentorAccept;
-
-
 }
