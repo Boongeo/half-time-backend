@@ -14,6 +14,8 @@ import { ConfigService } from '@nestjs/config';
 export class LocalUploadService implements UploadService {
   private readonly uploadPath: string;
   private readonly relativeUploadPath: string;
+  private readonly sensitiveUploadPath: string;
+  private readonly relativeSensitiveUploadPath: string;
 
   constructor(
     @Inject('winston')
@@ -24,16 +26,41 @@ export class LocalUploadService implements UploadService {
       'file-upload.uploadPath',
     );
     this.uploadPath = path.resolve(this.relativeUploadPath);
+
+    this.relativeSensitiveUploadPath = this.configService.get<string>(
+      'file-upload.sensitiveUploadPath',
+    );
+    this.sensitiveUploadPath = path.resolve(this.relativeSensitiveUploadPath);
+
     this.logger.log('Absolute uploadPath:', this.uploadPath);
+    this.logger.log('Absolute sensitiveUploadPath:', this.sensitiveUploadPath);
 
     if (!fs.existsSync(this.uploadPath)) {
       fs.mkdirSync(this.uploadPath, { recursive: true });
     }
+
+    if (!fs.existsSync(this.sensitiveUploadPath)) {
+      fs.mkdirSync(this.sensitiveUploadPath, { recursive: true });
+    }
   }
 
-  async: any;
-
   async uploadFile(file: Express.Multer.File): Promise<string> {
+    return this.uploadToPath(file, this.uploadPath, this.relativeUploadPath);
+  }
+
+  async uploadSensitiveFile(file: Express.Multer.File): Promise<string> {
+    return this.uploadToPath(
+      file,
+      this.sensitiveUploadPath,
+      this.relativeSensitiveUploadPath,
+    );
+  }
+
+  private async uploadToPath(
+    file: Express.Multer.File,
+    absolutePath: string,
+    relativePath: string,
+  ): Promise<string> {
     this.logger.debug('Original filename:', file.originalname);
 
     try {
@@ -43,8 +70,8 @@ export class LocalUploadService implements UploadService {
 
       const fileName = `${uuid()}_${normalizedName}${fileExtension}`;
 
-      const absoluteFilePath = path.join(this.uploadPath, fileName);
-      const relativeFilePath = path.join(this.relativeUploadPath, fileName);
+      const absoluteFilePath = path.join(absolutePath, fileName);
+      const relativeFilePath = path.join(relativePath, fileName);
 
       this.logger.debug('Saving file:', {
         originalName: file.originalname,
