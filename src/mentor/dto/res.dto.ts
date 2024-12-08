@@ -127,3 +127,34 @@ export class MentorAcceptReqDto {
   @ApiProperty({ required: true })
   status: MentorAccept;
 }
+
+export class AdminMentorRegistrationResDto {
+  @ApiProperty({ required: true })
+  mentorId: number;
+
+  @ApiProperty({ required: true })
+  userId: string;
+
+  @ApiProperty({ required: true })
+  status: string;
+
+  @ApiProperty({ required: true })
+  company: string;
+
+  @ApiProperty({ required: true })
+  experience: number;
+
+  @ApiProperty({ required: true })
+  createdAt: string;
+
+  static toDto(user: User, mentor: Mentor) {
+    return {
+      mentorId: mentor.id,
+      userId: user.id,
+      status: mentor.accept,
+      company: mentor.company,
+      experience: mentor.experience,
+      createdAt: mentor.createdAt.toISOString,
+    };
+  }
+}

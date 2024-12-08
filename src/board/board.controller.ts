@@ -30,8 +30,8 @@ export class BoardController {
 
   @ApiGetItemsResponse(BoardResDto)
   @Get()
-  async findAll(@Query() { page, size }: PageReqDto) {
-    return this.boardService.findAll(page, size);
+  async findAll(@Query() { page, limit }: PageReqDto) {
+    return this.boardService.findAll(page, limit);
   }
 
   @ApiPostResponse(BoardResDto)

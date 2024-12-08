@@ -4,7 +4,7 @@ import * as dotenv from 'dotenv';
 import { ConfigService } from '@nestjs/config';
 import { WinstonModule } from 'nest-winston';
 import { initializeSwagger } from './swagger.init';
-import { TransformInterceptor } from './common/interceptor/transform.interceptor';
+// import { TransformInterceptor } from './common/interceptor/transform.interceptor';
 import { ValidationPipe } from '@nestjs/common';
 import { initializeTransactionalContext } from 'typeorm-transactional';
 import * as session from 'express-session';
@@ -82,7 +82,7 @@ async function bootstrap() {
 
   initializeSwagger(app, configService);
 
-  app.useGlobalInterceptors(new TransformInterceptor());
+  // app.useGlobalInterceptors(new TransformInterceptor());
 
   await app.listen(process.env.PORT).then(() => {
     console.log(`Server is running on ${process.env.PORT}`);

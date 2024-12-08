@@ -113,4 +113,14 @@ export class UserService {
 
     return AfterRoleAssignDto.toDto(updatedUser);
   }
+
+  async getRoleByEnum(roleEnum: Role) {
+    return this.roleRepository.findOneByOrFail({
+      role: roleEnum,
+    });
+  }
+
+  async saveRole(userRole: UserRolesEntity) {
+    await this.userRolesRepository.save(userRole);
+  }
 }

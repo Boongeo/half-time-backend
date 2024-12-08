@@ -97,6 +97,18 @@ export class GetMentorProfilesDto extends PageReqDto {
 }
 
 export class GetMentorAcceptReqDto extends PageReqDto {
-  @IsEnum(['ACCEPT', 'REJECT', 'PENDING'])
+  @ApiProperty({
+    description: 'The status of the mentor acceptance',
+    example: MentorAccept.PENDING,
+  })
+  @IsEnum(MentorAccept)
   status: MentorAccept;
+}
+
+export class MentorRejectReqDto {
+  @ApiProperty({
+    description: 'The status of the mentor reject',
+  })
+  @IsString()
+  reason: string;
 }
