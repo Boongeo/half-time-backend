@@ -11,6 +11,7 @@ import { UserAfterAuth } from '../common/decorater/user.decorator';
 import { UserService } from '../user/user.service';
 import {
   AdminMentorRegistrationResDto,
+  AdminMentorResDto,
   MentorProfileResDto,
   MyMentorProfileResDto,
 } from './dto/res.dto';
@@ -23,7 +24,6 @@ import {
 import { UploadService } from '../common/interfaces/upload.service';
 import { MentorAccept } from './enum/mentor.enum';
 import { Role } from '../user/enums/role.enum';
-import { RoleEntity } from '../user/entity/roles.entity';
 import { UserRolesEntity } from '../user/entity/user-roles.entity';
 
 @Injectable()
@@ -172,7 +172,20 @@ export class MentorService {
 
     const mentorDtos = mentors.map((mentor) => {
       const user = mentor.user; // 연결된 User 정보
-      return MentorProfileResDto.toDto(user, mentor);
+
+      const mentorTechStacks = mentor.techStacks.map((techStack) => {
+        return techStack.techStack.tech;
+      });
+
+      const mentorInterests = mentor.interests.map((interest) => {
+        return interest.interest.interest;
+      });
+      return MentorProfileResDto.toDto(
+        user,
+        mentor,
+        mentorInterests,
+        mentorTechStacks,
+      );
     });
 
     return {
@@ -182,7 +195,6 @@ export class MentorService {
   }
 
   async getMentorProfile(mentorId: string) {
-    console.log(mentorId);
     const queryBuilder = this.mentorRepository
       .createQueryBuilder('mentor')
       .leftJoinAndSelect('mentor.user', 'user')
@@ -193,7 +205,21 @@ export class MentorService {
       .where('mentor.id = :mentorId', { mentorId });
 
     const mentor = await queryBuilder.getOne();
-    return MentorProfileResDto.toDto(mentor.user, mentor);
+
+    const mentorTechStacks = mentor.techStacks.map((techStack) => {
+      return techStack.techStack.tech;
+    });
+
+    const mentorInterests = mentor.interests.map((interest) => {
+      return interest.interest.interest;
+    });
+
+    return MentorProfileResDto.toDto(
+      mentor.user,
+      mentor,
+      mentorTechStacks,
+      mentorInterests,
+    );
   }
 
   async getMyMentorStatus(userAfterAuth: UserAfterAuth) {
@@ -268,5 +294,40 @@ export class MentorService {
     mentor.accept = MentorAccept.REJECTED;
     mentor.rejectReason = reason;
     await this.mentorRepository.save(mentor);
+  }
+
+  async getMentorDetailProfile(mentorId: string) {
+    const queryBuilder = this.mentorRepository
+      .createQueryBuilder('mentor')
+      .leftJoinAndSelect('mentor.user', 'user')
+      .leftJoinAndSelect('mentor.interests', 'interests')
+      .leftJoinAndSelect('mentor.techStacks', 'techStacks')
+      .leftJoinAndSelect('techStacks.techStack', 'techStack')
+      .leftJoinAndSelect('interests.interest', 'interest')
+      .leftJoinAndSelect('user.account', 'account')
+      .where('mentor.id = :mentorId', { mentorId });
+
+    const mentorDetail = await queryBuilder.getOne();
+
+    if (!mentorDetail) {
+      throw new Error('Mentor not found');
+    }
+
+    const mentorTechStacks = mentorDetail.techStacks.map((techStack) => {
+      return techStack.techStack.tech;
+    });
+
+    const mentorInterests = mentorDetail.interests.map((interest) => {
+      return interest.interest.interest;
+    });
+
+    return {
+      mentor: AdminMentorResDto.toDto(
+        mentorDetail.user,
+        mentorDetail,
+        mentorInterests,
+        mentorTechStacks,
+      ),
+    };
   }
 }
