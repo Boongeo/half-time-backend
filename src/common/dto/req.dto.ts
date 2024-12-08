@@ -11,5 +11,5 @@ export class PageReqDto {
   @ApiPropertyOptional({ description: 'date size. default = 20', example: 20 })
   @Transform((params) => Number(params.value))
   @IsInt()
-  size?: number = 20;
+  limit?: number = 20;
 }

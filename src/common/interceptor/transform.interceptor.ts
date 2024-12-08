@@ -8,7 +8,7 @@ import { map, Observable } from 'rxjs';
 import { Request } from 'express';
 import { PaginatedResult, Result } from '../interfaces/result.interface';
 
-@Injectable()
+// @Injectable()
 export class TransformInterceptor<T> implements NestInterceptor<T, Result<T>> {
   intercept(
     context: ExecutionContext,

@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  Param,
   Post,
   Query,
   UploadedFile,
@@ -13,14 +14,26 @@ import {
   ApiBody,
   ApiConsumes,
   ApiExtraModels,
+  ApiParam,
   ApiTags,
 } from '@nestjs/swagger';
 import { User, UserAfterAuth } from '../common/decorater/user.decorator';
 import { Roles } from '../common/decorater/roles.decorator';
 import { Role } from '../user/enums/role.enum';
-import { GetMentorProfilesDto, MentorProfileReqDto } from './dto/req.dto';
-import { ApiGetItemsResponse } from '../common/decorater/swagger.decorator';
 import {
+  GetMentorAcceptReqDto,
+  GetMentorProfilesDto,
+  MentorProfileReqDto,
+  MentorRejectReqDto,
+} from './dto/req.dto';
+import {
+  ApiGetItemsResponse,
+  ApiGetResponse,
+} from '../common/decorater/swagger.decorator';
+import {
+  AdminMentorRegistrationResDto,
+  AdminMentorResDto,
+  MentorProfileResDto,
   MentorProfilesResDto,
   MentorStatusResDto,
   MyMentorProfileResDto,
@@ -34,6 +47,8 @@ import { FileInterceptor } from '@nestjs/platform-express';
   MentorProfilesResDto,
   MentorProfileReqDto,
   MentorStatusResDto,
+  AdminMentorRegistrationResDto,
+  AdminMentorResDto,
 )
 @Roles(Role.USER)
 @Controller('mentors')
@@ -66,7 +81,7 @@ export class MentorController {
   }
 
   @Get()
-  @ApiGetItemsResponse(MentorProfilesResDto)
+  @ApiGetItemsResponse(MentorProfileResDto)
   async getFirstMentorProfiles(
     @Query() getMentorProfilesDto: GetMentorProfilesDto,
   ) {
@@ -74,23 +89,51 @@ export class MentorController {
   }
 
   @Get('search')
-  @ApiGetItemsResponse(MentorProfilesResDto)
+  @ApiGetItemsResponse(MentorProfileResDto)
   async getMentorProfiles(@Query() getMentorProfilesDto: GetMentorProfilesDto) {
     return this.mentorService.getMentorProfiles(getMentorProfilesDto);
   }
 
-  @Get(':mentorId')
-  @ApiGetItemsResponse(MentorProfileReqDto)
-  async getMentorProfile(@Query() mentorId: number) {
-    return this.mentorService.getMentorProfile(mentorId);
+  @Roles(Role.ADMIN)
+  @Get('mentor-registration')
+  @ApiGetItemsResponse(AdminMentorRegistrationResDto)
+  async getMentorProfilesForAdmin(
+    @Query() getMentorAcceptReqDto: GetMentorAcceptReqDto,
+  ) {
+    console.log(getMentorAcceptReqDto);
+    return this.mentorService.getMentorProfilesForAdmin(getMentorAcceptReqDto);
   }
 
-  // @Roles(Role.ADMIN)
-  // @Get('mentor-registration')
-  // @ApiGetItemsResponse(MentorProfilesResDto)
-  // async getMentorProfilesForAdmin(
-  //   @Query() getMentorAcceptReqDto: GetMentorAcceptReqDto,
-  // ) {
-  //   return this.mentorService.getMentorProfilesForAdmin(getMentorProfilesDto);
-  // }
+  @Roles(Role.ADMIN)
+  @Get('admin/mentor-registrations/:mentorId')
+  @ApiGetItemsResponse(AdminMentorResDto)
+  @ApiParam({ name: 'mentorId', type: String, description: 'ID of the mentor' })
+  async getMentorInfo(@Param('mentorId') mentorId: string) {
+    return this.mentorService.getMentorDetailProfile(mentorId);
+  }
+
+  @Roles(Role.ADMIN)
+  @Post(':mentorId/approve')
+  @ApiParam({ name: 'mentorId', type: String, description: 'ID of the mentor' })
+  async approveMentorProfile(@Param('mentorId') mentorId: string) {
+    return this.mentorService.approveMentorProfile(mentorId);
+  }
+
+  @Roles(Role.ADMIN)
+  @Post(':mentorId/reject')
+  @ApiParam({ name: 'mentorId', type: String, description: 'ID of the mentor' })
+  async rejectMentorProfile(
+    @Param('mentorId') mentorId: string,
+    @Body() mentorRejectReqDto: MentorRejectReqDto,
+  ) {
+    return this.mentorService.rejectMentorProfile(mentorId, mentorRejectReqDto);
+  }
+
+  @Roles(Role.ADMIN)
+  @Get(':mentorId')
+  @ApiGetResponse(MentorProfileReqDto)
+  @ApiParam({ name: 'mentorId', type: String, description: 'ID of the mentor' })
+  async getMentorProfile(@Param('mentorId') mentorId: string) {
+    return this.mentorService.getMentorProfile(mentorId);
+  }
 }

@@ -12,4 +12,11 @@ export class UserRolesEntity extends BaseEntity {
   @ManyToOne(() => RoleEntity, (role) => role.userRoles, { nullable: false })
   @JoinColumn({ name: 'role_id' })
   role: RoleEntity;
+
+  static createUserRole(user: User, role: RoleEntity) {
+    const userRole = new UserRolesEntity();
+    userRole.user = user;
+    userRole.role = role;
+    return userRole;
+  }
 }

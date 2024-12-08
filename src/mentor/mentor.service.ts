@@ -9,9 +9,22 @@ import { MentorTechStack } from './entity/mentor-tech-stack.entity';
 import { TechStack } from '../tech-stack/entity/tech-stack.entity';
 import { UserAfterAuth } from '../common/decorater/user.decorator';
 import { UserService } from '../user/user.service';
-import { MentorProfileResDto, MyMentorProfileResDto } from './dto/res.dto';
-import { GetMentorProfilesDto, MentorProfileReqDto } from './dto/req.dto';
+import {
+  AdminMentorRegistrationResDto,
+  AdminMentorResDto,
+  MentorProfileResDto,
+  MyMentorProfileResDto,
+} from './dto/res.dto';
+import {
+  GetMentorAcceptReqDto,
+  GetMentorProfilesDto,
+  MentorProfileReqDto,
+  MentorRejectReqDto,
+} from './dto/req.dto';
 import { UploadService } from '../common/interfaces/upload.service';
+import { MentorAccept } from './enum/mentor.enum';
+import { Role } from '../user/enums/role.enum';
+import { UserRolesEntity } from '../user/entity/user-roles.entity';
 
 @Injectable()
 export class MentorService {
@@ -48,6 +61,14 @@ export class MentorService {
     careerProof: Express.Multer.File,
   ) {
     const user = await this.userService.findUserById(userAfterAuth.id);
+
+    const existMentor = await this.mentorRepository.findOne({
+      where: { user: { id: user.id } },
+    });
+
+    if (existMentor) {
+      throw new Error('이미 등록 요청이 있습니다.');
+    }
 
     const interests = await this.interestRepository.find({
       where: interestNames.map((name) => ({ interest: name })),
@@ -118,7 +139,7 @@ export class MentorService {
   }
 
   async getMentorProfiles(getMentorProfilesDto: GetMentorProfilesDto) {
-    const { search, techStack, interest, page, size } = getMentorProfilesDto;
+    const { search, techStack, interest, page, limit } = getMentorProfilesDto;
 
     const queryBuilder = this.mentorRepository
       .createQueryBuilder('mentor')
@@ -144,14 +165,27 @@ export class MentorService {
       });
     }
 
-    const skip = (page - 1) * size; // 몇 개를 건너뛸지 계산
-    queryBuilder.skip(skip).take(size);
+    const skip = (page - 1) * limit; // 몇 개를 건너뛸지 계산
+    queryBuilder.skip(skip).take(limit);
 
     const [mentors, total] = await queryBuilder.getManyAndCount();
 
     const mentorDtos = mentors.map((mentor) => {
       const user = mentor.user; // 연결된 User 정보
-      return MentorProfileResDto.toDto(user, mentor);
+
+      const mentorTechStacks = mentor.techStacks.map((techStack) => {
+        return techStack.techStack.tech;
+      });
+
+      const mentorInterests = mentor.interests.map((interest) => {
+        return interest.interest.interest;
+      });
+      return MentorProfileResDto.toDto(
+        user,
+        mentor,
+        mentorInterests,
+        mentorTechStacks,
+      );
     });
 
     return {
@@ -160,18 +194,32 @@ export class MentorService {
     };
   }
 
-  async getMentorProfile(mentorId: number) {
+  async getMentorProfile(mentorId: string) {
     const queryBuilder = this.mentorRepository
       .createQueryBuilder('mentor')
       .leftJoinAndSelect('mentor.user', 'user')
-      .leftJoinAndSelect('mentor.mentorInterests', 'mentorInterests')
-      .leftJoinAndSelect('mentor.mentorTechStacks', 'mentorTechStacks')
-      .leftJoinAndSelect('mentorTechStacks.techStack', 'techStack')
-      .leftJoinAndSelect('mentorInterests.interest', 'interest')
+      .leftJoinAndSelect('mentor.interests', 'interests')
+      .leftJoinAndSelect('mentor.techStacks', 'techStacks')
+      .leftJoinAndSelect('techStacks.techStack', 'techStack')
+      .leftJoinAndSelect('interests.interest', 'interest')
       .where('mentor.id = :mentorId', { mentorId });
 
     const mentor = await queryBuilder.getOne();
-    return MentorProfileResDto.toDto(mentor.user, mentor);
+
+    const mentorTechStacks = mentor.techStacks.map((techStack) => {
+      return techStack.techStack.tech;
+    });
+
+    const mentorInterests = mentor.interests.map((interest) => {
+      return interest.interest.interest;
+    });
+
+    return MentorProfileResDto.toDto(
+      mentor.user,
+      mentor,
+      mentorTechStacks,
+      mentorInterests,
+    );
   }
 
   async getMyMentorStatus(userAfterAuth: UserAfterAuth) {
@@ -184,6 +232,102 @@ export class MentorService {
       status: mentor.accept,
       rejectReason: mentor.rejectReason,
       updatedAt: mentor.updatedAt,
+    };
+  }
+
+  async getMentorProfilesForAdmin({
+    status,
+    page,
+    limit,
+  }: GetMentorAcceptReqDto) {
+    const queryBuilder = this.mentorRepository
+      .createQueryBuilder('mentor')
+      .leftJoinAndSelect('mentor.user', 'user')
+      .where('mentor.accept = :status', { status });
+
+    const skip = (page - 1) * limit;
+    queryBuilder.skip(skip).take(limit);
+
+    const [mentors, total] = await queryBuilder.getManyAndCount();
+
+    const mentorDtos = mentors.map((mentor) => {
+      return AdminMentorRegistrationResDto.toDto(mentor.user, mentor);
+    });
+
+    return {
+      registrations: mentorDtos,
+      page,
+      limit,
+      total,
+    };
+  }
+
+  @Transactional()
+  async approveMentorProfile(mentorId: string) {
+    const mentor = await this.mentorRepository
+      .createQueryBuilder('mentor')
+      .leftJoinAndSelect('mentor.user', 'user')
+      .leftJoinAndSelect('user.userRoles', 'userRoles')
+      .where('mentor.id = :mentorId', { mentorId })
+      .getOne();
+
+    if (!mentor) {
+      throw new Error('멘토를 찾을 수 없습니다.');
+    }
+
+    mentor.accept = MentorAccept.APPROVED;
+    const mentorRole = await this.userService.getRoleByEnum(Role.MENTOR);
+    const userRolesEntity = UserRolesEntity.createUserRole(
+      mentor.user,
+      mentorRole,
+    );
+    await this.userService.saveRole(userRolesEntity);
+    await this.mentorRepository.save(mentor);
+
+    return { status: 'success', message: 'Mentor has been approved.' };
+  }
+
+  async rejectMentorProfile(mentorId: string, { reason }: MentorRejectReqDto) {
+    const mentor = await this.mentorRepository.findOne({
+      where: { id: mentorId },
+    });
+    mentor.accept = MentorAccept.REJECTED;
+    mentor.rejectReason = reason;
+    await this.mentorRepository.save(mentor);
+  }
+
+  async getMentorDetailProfile(mentorId: string) {
+    const queryBuilder = this.mentorRepository
+      .createQueryBuilder('mentor')
+      .leftJoinAndSelect('mentor.user', 'user')
+      .leftJoinAndSelect('mentor.interests', 'interests')
+      .leftJoinAndSelect('mentor.techStacks', 'techStacks')
+      .leftJoinAndSelect('techStacks.techStack', 'techStack')
+      .leftJoinAndSelect('interests.interest', 'interest')
+      .leftJoinAndSelect('user.account', 'account')
+      .where('mentor.id = :mentorId', { mentorId });
+
+    const mentorDetail = await queryBuilder.getOne();
+
+    if (!mentorDetail) {
+      throw new Error('Mentor not found');
+    }
+
+    const mentorTechStacks = mentorDetail.techStacks.map((techStack) => {
+      return techStack.techStack.tech;
+    });
+
+    const mentorInterests = mentorDetail.interests.map((interest) => {
+      return interest.interest.interest;
+    });
+
+    return {
+      mentor: AdminMentorResDto.toDto(
+        mentorDetail.user,
+        mentorDetail,
+        mentorInterests,
+        mentorTechStacks,
+      ),
     };
   }
 }
