@@ -2,7 +2,6 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Role } from '../enums/role.enum';
 import { UserAfterAuth } from '../../common/decorater/user.decorator';
 import { User } from '../entity/user.entity';
-import { UserRolesEntity } from '../entity/user-roles.entity';
 
 export class UserInfoResDto {
   @ApiProperty({ required: true })
@@ -14,7 +13,7 @@ export class UserInfoResDto {
   @ApiProperty({ required: true })
   roles: Role[];
 
-  @ApiProperty({ required: true })
+  @ApiProperty({ required: false })
   profileImage?: string;
 
   static toDto(userAfterAuth: UserAfterAuth, user: User) {
@@ -22,7 +21,7 @@ export class UserInfoResDto {
       email: userAfterAuth.email,
       nickname: user.nickname,
       roles: userAfterAuth.roles,
-      profileImage: user.profileImage,
+      profileImage: user.profileImage || undefined,
     };
   }
 }
