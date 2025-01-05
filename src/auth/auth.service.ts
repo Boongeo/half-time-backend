@@ -9,14 +9,14 @@ import { ConfigService } from '@nestjs/config';
 import { MailService } from '../mail/mail.service';
 import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
 import { InjectRepository } from '@nestjs/typeorm';
-import { RoleEntity } from '../user/entity/roles.entity';
+import { RoleEntity } from '../user/infrastructure/entity/roles.entity';
 import { Repository } from 'typeorm';
-import { UserRolesEntity } from '../user/entity/user-roles.entity';
-import { User } from '../user/entity/user.entity';
-import { Account } from './entity/account.entity';
+import { UserRolesEntity } from '../user/infrastructure/entity/user-roles.entity';
+import { User } from '../user/infrastructure/entity/user.entity';
+import { AccountEntity } from './entity/account.entity';
 import { Transactional } from 'typeorm-transactional';
 import { Payload, SignupResDto } from './dto/res.dto';
-import { Role } from '../user/enums/role.enum';
+import { Role } from '../user/common/enums/role.enum';
 import { Provider } from './enums/provider.enum';
 import * as bcrypt from 'bcrypt';
 import { TokenType } from './enums/token-type.enum';
@@ -35,8 +35,8 @@ export class AuthService {
     private readonly userRolesRepository: Repository<UserRolesEntity>,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
-    @InjectRepository(Account)
-    private readonly accountRepository: Repository<Account>,
+    @InjectRepository(AccountEntity)
+    private readonly accountRepository: Repository<AccountEntity>,
   ) {}
 
   // 이메일 중복 체크
@@ -154,7 +154,7 @@ export class AuthService {
     return user;
   }
 
-  private async createAccount(accountData: Partial<Account>) {
+  private async createAccount(accountData: Partial<AccountEntity>) {
     const refreshToken = this.generateRefreshToken({
       sub: accountData.user.id,
       tokenType: TokenType.REFRESH,
@@ -187,7 +187,7 @@ export class AuthService {
     return this.accountRepository.findOneBy({ email, provider });
   }
 
-  private async generateTokensForAccount(account: Account) {
+  private async generateTokensForAccount(account: AccountEntity) {
     const accessToken = this.generateAccessToken({
       sub: account.user.id,
       tokenType: TokenType.ACCESS,

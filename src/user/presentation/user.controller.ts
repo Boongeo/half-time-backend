@@ -14,14 +14,14 @@ import {
   ApiExtraModels,
   ApiTags,
 } from '@nestjs/swagger';
-import { UserService } from './user.service';
-import { User, UserAfterAuth } from '../common/decorater/user.decorator';
-import { Roles } from '../common/decorater/roles.decorator';
-import { Role } from './enums/role.enum';
+import { UserService } from '../application/user.service';
+import { User, UserAfterAuth } from '../../common/decorater/user.decorator';
+import { Roles } from '../../common/decorater/roles.decorator';
+import { Role } from '../common/enums/role.enum';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { FindUserReqDto, UpdateProfileReqDto } from './dto/req.dto';
-import { ApiPostResponse } from '../common/decorater/swagger.decorator';
-import { AfterRoleAssignDto, UserInfoResDto } from './dto/res.dto';
+import { FindUserReqDto, UpdateProfileReqDto } from './req.dto';
+import { ApiPostResponse } from '../../common/decorater/swagger.decorator';
+import { AfterRoleAssignDto, UserInfoResDto } from './res.dto';
 
 @Roles(Role.USER)
 @ApiBearerAuth()

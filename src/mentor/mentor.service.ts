@@ -8,7 +8,7 @@ import { MentorInterest } from './entity/mentor-interest.entity';
 import { MentorTechStack } from './entity/mentor-tech-stack.entity';
 import { TechStack } from '../tech-stack/entity/tech-stack.entity';
 import { UserAfterAuth } from '../common/decorater/user.decorator';
-import { UserService } from '../user/user.service';
+import { UserService } from '../user/application/user.service';
 import {
   AdminMentorRegistrationResDto,
   AdminMentorResDto,
@@ -23,8 +23,8 @@ import {
 } from './dto/req.dto';
 import { UploadService } from '../common/interfaces/upload.service';
 import { MentorAccept } from './enum/mentor.enum';
-import { Role } from '../user/enums/role.enum';
-import { UserRolesEntity } from '../user/entity/user-roles.entity';
+import { Role } from '../user/common/enums/role.enum';
+import { UserRolesEntity } from '../user/infrastructure/entity/user-roles.entity';
 
 @Injectable()
 export class MentorService {

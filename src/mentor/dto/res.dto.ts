@@ -7,7 +7,7 @@ import {
   IsString,
 } from 'class-validator';
 import { Mentor } from '../entity/mentor.entity';
-import { User } from '../../user/entity/user.entity';
+import { User } from '../../user/infrastructure/entity/user.entity';
 import { MentorProfileReqDto } from './req.dto';
 import { MentorAccept, MentoringType } from '../enum/mentor.enum';
 

@@ -1,5 +1,5 @@
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
-import { Role } from '../../user/enums/role.enum';
+import { Role } from '../../user/common/enums/role.enum';
 
 export const User = createParamDecorator(
   (data: unknown, ctx: ExecutionContext) => {

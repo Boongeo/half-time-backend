@@ -1,6 +1,6 @@
 import { Column, Entity, JoinColumn, OneToMany, OneToOne } from 'typeorm';
 import { BaseEntity } from '../../common/entity/base.entity';
-import { User } from '../../user/entity/user.entity';
+import { User } from '../../user/infrastructure/entity/user.entity';
 import { MenteeTechStack } from './mentee-tech-stack.entity';
 import { MenteeInterest } from './mentee-interest.entity';
 

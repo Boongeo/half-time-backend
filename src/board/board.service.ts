@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Board } from './entity/board.entity';
+import { BoardEntity } from './entity/board.entity';
 import { Repository } from 'typeorm';
 import { BoardResDto } from './dto/res.dto';
 import { BoardReqDto } from './dto/req.dto';
@@ -8,8 +8,8 @@ import { BoardReqDto } from './dto/req.dto';
 @Injectable()
 export class BoardService {
   constructor(
-    @InjectRepository(Board)
-    private readonly boardRepository: Repository<Board>,
+    @InjectRepository(BoardEntity)
+    private readonly boardRepository: Repository<BoardEntity>,
   ) {}
 
   async findAll(page: number, size: number) {

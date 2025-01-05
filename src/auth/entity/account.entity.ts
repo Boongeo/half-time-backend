@@ -1,10 +1,10 @@
 import { Column, Entity, JoinColumn, OneToOne } from 'typeorm';
 import { Provider } from '../enums/provider.enum';
-import { User } from '../../user/entity/user.entity';
+import { User } from '../../user/infrastructure/entity/user.entity';
 import { BaseEntity } from '../../common/entity/base.entity';
 
-@Entity()
-export class Account extends BaseEntity {
+@Entity('Account')
+export class AccountEntity extends BaseEntity {
   @Column()
   refreshToken: string;
 

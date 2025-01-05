@@ -19,7 +19,7 @@ import {
 } from '@nestjs/swagger';
 import { User, UserAfterAuth } from '../common/decorater/user.decorator';
 import { Roles } from '../common/decorater/roles.decorator';
-import { Role } from '../user/enums/role.enum';
+import { Role } from '../user/common/enums/role.enum';
 import {
   GetMentorAcceptReqDto,
   GetMentorProfilesDto,

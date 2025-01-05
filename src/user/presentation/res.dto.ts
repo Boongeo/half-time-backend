@@ -1,8 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Role } from '../enums/role.enum';
+import { Role } from '../common/enums/role.enum';
 import { UserAfterAuth } from '../../common/decorater/user.decorator';
-import { User } from '../entity/user.entity';
-import { UserRolesEntity } from '../entity/user-roles.entity';
+import { User } from '../infrastructure/entity/user.entity';
+import { UserRolesEntity } from '../infrastructure/entity/user-roles.entity';
 
 export class UserInfoResDto {
   @ApiProperty({ required: true })

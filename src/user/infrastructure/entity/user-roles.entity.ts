@@ -1,5 +1,5 @@
 import { Entity, ManyToOne, JoinColumn } from 'typeorm';
-import { BaseEntity } from '../../common/entity/base.entity';
+import { BaseEntity } from '../../../common/entity/base.entity';
 import { User } from './user.entity';
 import { RoleEntity } from './roles.entity';
 

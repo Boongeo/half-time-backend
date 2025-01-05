@@ -5,7 +5,7 @@ import { Repository } from 'typeorm';
 import { MenteeInterest } from './entity/mentee-interest.entity';
 import { Interest } from '../interest/entity/interest.entity';
 import { Transactional } from 'typeorm-transactional';
-import { User } from '../user/entity/user.entity';
+import { User } from '../user/infrastructure/entity/user.entity';
 
 @Injectable()
 export class MenteeService {

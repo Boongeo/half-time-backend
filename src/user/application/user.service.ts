@@ -6,16 +6,16 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { User } from './entity/user.entity';
-import { UserAfterAuth } from '../common/decorater/user.decorator';
-import { UpdateProfileReqDto } from './dto/req.dto';
+import { User } from '../infrastructure/entity/user.entity';
+import { UserAfterAuth } from '../../common/decorater/user.decorator';
+import { UpdateProfileReqDto } from '../presentation/req.dto';
 import { Transactional } from 'typeorm-transactional';
-import { UploadService } from '../common/interfaces/upload.service';
-import { AfterRoleAssignDto, UserInfoResDto } from './dto/res.dto';
-import { MenteeService } from '../mentee/mentee.service';
-import { RoleEntity } from './entity/roles.entity';
-import { Role } from './enums/role.enum';
-import { UserRolesEntity } from './entity/user-roles.entity';
+import { UploadService } from '../../common/interfaces/upload.service';
+import { AfterRoleAssignDto, UserInfoResDto } from '../presentation/res.dto';
+import { RoleEntity } from '../infrastructure/entity/roles.entity';
+import { Role } from '../common/enums/role.enum';
+import { UserRolesEntity } from '../infrastructure/entity/user-roles.entity';
+import { MenteePort } from './port/outbound/mentee.port';
 
 @Injectable()
 export class UserService {
@@ -28,8 +28,8 @@ export class UserService {
     private readonly roleRepository: Repository<RoleEntity>,
     @InjectRepository(UserRolesEntity)
     private readonly userRolesRepository: Repository<UserRolesEntity>,
-    @Inject()
-    private readonly menteeService: MenteeService,
+    @Inject('MenteePort')
+    private readonly menteePort: MenteePort,
   ) {}
 
   async findUserById(id: string) {
@@ -49,7 +49,7 @@ export class UserService {
     }
     user.nickname = nickname;
 
-    user.mentee = await this.menteeService.createMenteeProfile(
+    user.mentee = await this.menteePort.createProfile(
       user,
       interestNames,
       introduction,
