@@ -16,8 +16,8 @@ import {
   SigninReqDto,
   SignupReqDto,
   VerifyTokenReqDto,
-} from './dto/req.dto';
-import { AuthService } from './auth.service';
+} from './req.dto';
+import { AuthService } from '../application/auth.service';
 import {
   AfterVerifyResDto,
   EmailExistsResDto,
@@ -25,13 +25,13 @@ import {
   RefreshResDto,
   SigninResDto,
   SignupResDto,
-} from './dto/res.dto';
-import { ApiPostResponse } from '../common/decorater/swagger.decorator';
-import { Public } from '../common/decorater/public.decorator';
-import { User, UserAfterAuth } from '../common/decorater/user.decorator';
+} from './res.dto';
+import { ApiPostResponse } from '../../common/decorater/swagger.decorator';
+import { Public } from '../../common/decorater/public.decorator';
+import { User, UserAfterAuth } from '../../common/decorater/user.decorator';
 import { AuthGuard } from '@nestjs/passport';
 import { Request } from 'express';
-import { Provider } from './enums/provider.enum';
+import { Provider } from '../enums/provider.enum';
 
 @ApiTags('auth')
 @ApiExtraModels(

@@ -17,7 +17,7 @@ import {
 import { UserService } from '../application/user.service';
 import { User, UserAfterAuth } from '../../common/decorater/user.decorator';
 import { Roles } from '../../common/decorater/roles.decorator';
-import { Role } from '../common/enums/role.enum';
+import { Role } from '../enums/role.enum';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { FindUserReqDto, UpdateProfileReqDto } from './req.dto';
 import { ApiPostResponse } from '../../common/decorater/swagger.decorator';

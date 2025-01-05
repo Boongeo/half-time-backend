@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Role } from '../common/enums/role.enum';
+import { Role } from '../enums/role.enum';
 import { UserAfterAuth } from '../../common/decorater/user.decorator';
 import { User } from '../infrastructure/entity/user.entity';
 import { UserRolesEntity } from '../infrastructure/entity/user-roles.entity';

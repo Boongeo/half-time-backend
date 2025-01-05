@@ -6,20 +6,20 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { MailService } from '../mail/mail.service';
+import { MailService } from '../../mail/mail.service';
 import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
 import { InjectRepository } from '@nestjs/typeorm';
-import { RoleEntity } from '../user/infrastructure/entity/roles.entity';
+import { RoleEntity } from '../../user/infrastructure/entity/roles.entity';
 import { Repository } from 'typeorm';
-import { UserRolesEntity } from '../user/infrastructure/entity/user-roles.entity';
-import { User } from '../user/infrastructure/entity/user.entity';
-import { AccountEntity } from './entity/account.entity';
+import { UserRolesEntity } from '../../user/infrastructure/entity/user-roles.entity';
+import { User } from '../../user/infrastructure/entity/user.entity';
+import { AccountEntity } from '../infrastructure/entity/account.entity';
 import { Transactional } from 'typeorm-transactional';
-import { Payload, SignupResDto } from './dto/res.dto';
-import { Role } from '../user/common/enums/role.enum';
-import { Provider } from './enums/provider.enum';
+import { Payload, SignupResDto } from '../presentation/res.dto';
+import { Role } from '../../user/enums/role.enum';
+import { Provider } from '../enums/provider.enum';
 import * as bcrypt from 'bcrypt';
-import { TokenType } from './enums/token-type.enum';
+import { TokenType } from '../enums/token-type.enum';
 
 @Injectable()
 export class AuthService {

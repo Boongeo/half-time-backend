@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Post } from '@nestjs/common';
 import { Roles } from '../common/decorater/roles.decorator';
-import { Role } from '../user/common/enums/role.enum';
+import { Role } from '../user/enums/role.enum';
 import { ApiBearerAuth, ApiExtraModels, ApiTags } from '@nestjs/swagger';
 import {
   ApiGetResponse,

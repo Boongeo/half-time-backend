@@ -13,7 +13,7 @@ import { Transactional } from 'typeorm-transactional';
 import { UploadService } from '../../common/interfaces/upload.service';
 import { AfterRoleAssignDto, UserInfoResDto } from '../presentation/res.dto';
 import { RoleEntity } from '../infrastructure/entity/roles.entity';
-import { Role } from '../common/enums/role.enum';
+import { Role } from '../enums/role.enum';
 import { UserRolesEntity } from '../infrastructure/entity/user-roles.entity';
 import { MenteePort } from './port/outbound/mentee.port';
 

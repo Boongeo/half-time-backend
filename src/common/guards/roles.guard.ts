@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { BaseGuard } from './base.guard';
-import { Role } from '../../user/common/enums/role.enum';
+import { Role } from '../../user/enums/role.enum';
 
 @Injectable()
 export class RolesGuard extends BaseGuard {

@@ -1,7 +1,7 @@
 import { Column, Entity, JoinColumn, OneToOne } from 'typeorm';
-import { Provider } from '../enums/provider.enum';
-import { User } from '../../user/infrastructure/entity/user.entity';
-import { BaseEntity } from '../../common/entity/base.entity';
+import { Provider } from '../../enums/provider.enum';
+import { User } from '../../../user/infrastructure/entity/user.entity';
+import { BaseEntity } from '../../../common/entity/base.entity';
 
 @Entity('Account')
 export class AccountEntity extends BaseEntity {

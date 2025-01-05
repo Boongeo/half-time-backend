@@ -11,7 +11,7 @@ import * as session from 'express-session';
 import * as express from 'express';
 import { join } from 'path';
 import passport from 'passport';
-import { Role } from './user/common/enums/role.enum';
+import { Role } from './user/enums/role.enum';
 
 async function bootstrap() {
   initializeTransactionalContext();

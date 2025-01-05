@@ -3,8 +3,8 @@ import { PassportStrategy } from '@nestjs/passport';
 import { ConfigService } from '@nestjs/config';
 import { Strategy, Profile } from 'passport-linkedin-oauth2';
 import { Provider } from '../enums/provider.enum';
-import { SignupResDto } from '../dto/res.dto';
-import { AuthService } from '../auth.service';
+import { SignupResDto } from '../presentation/res.dto';
+import { AuthService } from '../application/auth.service';
 
 @Injectable()
 export class LinkedInStrategy extends PassportStrategy(Strategy, 'linkedin') {

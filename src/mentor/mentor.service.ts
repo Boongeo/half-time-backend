@@ -23,7 +23,7 @@ import {
 } from './dto/req.dto';
 import { UploadService } from '../common/interfaces/upload.service';
 import { MentorAccept } from './enum/mentor.enum';
-import { Role } from '../user/common/enums/role.enum';
+import { Role } from '../user/enums/role.enum';
 import { UserRolesEntity } from '../user/infrastructure/entity/user-roles.entity';
 
 @Injectable()

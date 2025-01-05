@@ -1,7 +1,7 @@
 import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import { DataSource } from 'typeorm';
 import { RoleEntity } from '../user/infrastructure/entity/roles.entity';
-import { Role } from '../user/common/enums/role.enum';
+import { Role } from '../user/enums/role.enum';
 import { Interest } from '../interest/entity/interest.entity';
 import { TechStack } from '../tech-stack/entity/tech-stack.entity';
 
