@@ -1,6 +1,6 @@
 import { Entity, ManyToOne } from 'typeorm';
 import { BaseEntity } from '../../common/entity/base.entity';
-import { Interest } from '../../interest/entity/interest.entity';
+import { Interest } from '../../interest/infrastructure/entity/interest.entity';
 import { Mentee } from './mentee.entity';
 
 @Entity()

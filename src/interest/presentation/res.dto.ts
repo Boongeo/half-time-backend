@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Interest } from '../entity/interest.entity';
+import { Interest } from '../infrastructure/entity/interest.entity';
 
 export class InterestResDto {
   @ApiProperty({

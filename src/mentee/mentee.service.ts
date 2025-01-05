@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Mentee } from './entity/mentee.entity';
 import { Repository } from 'typeorm';
 import { MenteeInterest } from './entity/mentee-interest.entity';
-import { Interest } from '../interest/entity/interest.entity';
+import { Interest } from '../interest/infrastructure/entity/interest.entity';
 import { Transactional } from 'typeorm-transactional';
 import { User } from '../user/infrastructure/entity/user.entity';
 

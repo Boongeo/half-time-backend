@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Interest } from '../interest/entity/interest.entity';
+import { Interest } from '../interest/infrastructure/entity/interest.entity';
 import { Transactional } from 'typeorm-transactional';
 import { Mentor } from './entity/mentor.entity';
 import { MentorInterest } from './entity/mentor-interest.entity';

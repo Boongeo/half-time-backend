@@ -1,7 +1,7 @@
 import { Column, Entity, OneToMany } from 'typeorm';
-import { BaseEntity } from '../../common/entity/base.entity';
-import { MentorInterest } from '../../mentor/entity/mentor-interest.entity';
-import { MenteeInterest } from '../../mentee/entity/mentee-interest.entity';
+import { BaseEntity } from '../../../common/entity/base.entity';
+import { MentorInterest } from '../../../mentor/entity/mentor-interest.entity';
+import { MenteeInterest } from '../../../mentee/entity/mentee-interest.entity';
 
 @Entity()
 export class Interest extends BaseEntity {

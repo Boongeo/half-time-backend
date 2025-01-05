@@ -1,8 +1,8 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Interest } from './entity/interest.entity';
+import { Interest } from '../infrastructure/entity/interest.entity';
 import { Repository } from 'typeorm';
-import { AllInterestResDto } from './dto/res.dto';
+import { AllInterestResDto } from '../presentation/res.dto';
 
 @Injectable()
 export class InterestService {

@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Interest } from './entity/interest.entity';
-import { InterestService } from './interest.service';
-import { InterestController } from './interest.controller';
+import { Interest } from './infrastructure/entity/interest.entity';
+import { InterestService } from './application/interest.service';
+import { InterestController } from './presentation/interest.controller';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Interest])],
