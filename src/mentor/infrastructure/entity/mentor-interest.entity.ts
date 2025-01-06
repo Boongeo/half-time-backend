@@ -1,7 +1,7 @@
 import { Entity, ManyToOne } from 'typeorm';
-import { BaseEntity } from '../../common/entity/base.entity';
+import { BaseEntity } from '../../../common/entity/base.entity';
 import { Mentor } from './mentor.entity';
-import { Interest } from '../../interest/infrastructure/entity/interest.entity';
+import { Interest } from '../../../interest/infrastructure/entity/interest.entity';
 
 @Entity()
 export class MentorInterest extends BaseEntity {

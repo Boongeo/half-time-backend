@@ -2,7 +2,7 @@ import { Column, Entity, OneToMany, OneToOne } from 'typeorm';
 import { BaseEntity } from '../../../common/entity/base.entity';
 import { AccountEntity } from '../../../auth/infrastructure/entity/account.entity';
 import { Mentee } from '../../../mentee/entity/mentee.entity';
-import { Mentor } from '../../../mentor/entity/mentor.entity';
+import { Mentor } from '../../../mentor/infrastructure/entity/mentor.entity';
 import { UserRolesEntity } from './user-roles.entity';
 
 @Entity()

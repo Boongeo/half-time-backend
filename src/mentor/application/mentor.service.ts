@@ -1,30 +1,30 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Interest } from '../interest/infrastructure/entity/interest.entity';
+import { Interest } from '../../interest/infrastructure/entity/interest.entity';
 import { Transactional } from 'typeorm-transactional';
-import { Mentor } from './entity/mentor.entity';
-import { MentorInterest } from './entity/mentor-interest.entity';
-import { MentorTechStack } from './entity/mentor-tech-stack.entity';
-import { TechStack } from '../tech-stack/entity/tech-stack.entity';
-import { UserAfterAuth } from '../common/decorater/user.decorator';
-import { UserService } from '../user/application/user.service';
+import { Mentor } from '../infrastructure/entity/mentor.entity';
+import { MentorInterest } from '../infrastructure/entity/mentor-interest.entity';
+import { MentorTechStack } from '../infrastructure/entity/mentor-tech-stack.entity';
+import { TechStack } from '../../tech-stack/entity/tech-stack.entity';
+import { UserAfterAuth } from '../../common/decorater/user.decorator';
+import { UserService } from '../../user/application/user.service';
 import {
   AdminMentorRegistrationResDto,
   AdminMentorResDto,
   MentorProfileResDto,
   MyMentorProfileResDto,
-} from './dto/res.dto';
+} from '../presentation/res.dto';
 import {
   GetMentorAcceptReqDto,
   GetMentorProfilesDto,
   MentorProfileReqDto,
   MentorRejectReqDto,
-} from './dto/req.dto';
-import { UploadService } from '../common/interfaces/upload.service';
-import { MentorAccept } from './enum/mentor.enum';
-import { Role } from '../user/enums/role.enum';
-import { UserRolesEntity } from '../user/infrastructure/entity/user-roles.entity';
+} from '../presentation/req.dto';
+import { UploadService } from '../../common/interfaces/upload.service';
+import { MentorAccept } from '../enum/mentor.enum';
+import { Role } from '../../user/enums/role.enum';
+import { UserRolesEntity } from '../../user/infrastructure/entity/user-roles.entity';
 
 @Injectable()
 export class MentorService {

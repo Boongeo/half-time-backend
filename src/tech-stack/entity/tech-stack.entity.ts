@@ -1,6 +1,6 @@
 import { Column, Entity, OneToMany } from 'typeorm';
 import { BaseEntity } from '../../common/entity/base.entity';
-import { MentorTechStack } from '../../mentor/entity/mentor-tech-stack.entity';
+import { MentorTechStack } from '../../mentor/infrastructure/entity/mentor-tech-stack.entity';
 import { MenteeTechStack } from '../../mentee/entity/mentee-tech-stack.entity';
 
 @Entity()

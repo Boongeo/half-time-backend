@@ -8,7 +8,7 @@ import {
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
-import { MentorService } from './mentor.service';
+import { MentorService } from '../application/mentor.service';
 import {
   ApiBearerAuth,
   ApiBody,
@@ -17,19 +17,19 @@ import {
   ApiParam,
   ApiTags,
 } from '@nestjs/swagger';
-import { User, UserAfterAuth } from '../common/decorater/user.decorator';
-import { Roles } from '../common/decorater/roles.decorator';
-import { Role } from '../user/enums/role.enum';
+import { User, UserAfterAuth } from '../../common/decorater/user.decorator';
+import { Roles } from '../../common/decorater/roles.decorator';
+import { Role } from '../../user/enums/role.enum';
 import {
   GetMentorAcceptReqDto,
   GetMentorProfilesDto,
   MentorProfileReqDto,
   MentorRejectReqDto,
-} from './dto/req.dto';
+} from './req.dto';
 import {
   ApiGetItemsResponse,
   ApiGetResponse,
-} from '../common/decorater/swagger.decorator';
+} from '../../common/decorater/swagger.decorator';
 import {
   AdminMentorRegistrationResDto,
   AdminMentorResDto,
@@ -37,7 +37,7 @@ import {
   MentorProfilesResDto,
   MentorStatusResDto,
   MyMentorProfileResDto,
-} from './dto/res.dto';
+} from './res.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 
 @ApiTags('mentors')
