@@ -1,15 +1,15 @@
 import { Body, Controller, Get, Post } from '@nestjs/common';
-import { Roles } from '../common/decorater/roles.decorator';
-import { Role } from '../user/enums/role.enum';
+import { Roles } from '../../common/decorater/roles.decorator';
+import { Role } from '../../user/enums/role.enum';
 import { ApiBearerAuth, ApiExtraModels, ApiTags } from '@nestjs/swagger';
 import {
   ApiGetResponse,
   ApiPostResponse,
-} from '../common/decorater/swagger.decorator';
-import { AllTechStackResDto, TechStackResDto } from './dto/res.dto';
-import { TechStackReqDto } from './dto/req.dto';
-import { TechStackService } from './tech-stack.service';
-import { Public } from '../common/decorater/public.decorator';
+} from '../../common/decorater/swagger.decorator';
+import { AllTechStackResDto, TechStackResDto } from './res.dto';
+import { TechStackReqDto } from './req.dto';
+import { TechStackService } from '../application/tech-stack.service';
+import { Public } from '../../common/decorater/public.decorator';
 
 @ApiTags('tech-stack')
 @ApiExtraModels(TechStackResDto, AllTechStackResDto)

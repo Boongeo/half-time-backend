@@ -3,7 +3,7 @@ import { DataSource } from 'typeorm';
 import { RoleEntity } from '../user/infrastructure/entity/roles.entity';
 import { Role } from '../user/enums/role.enum';
 import { Interest } from '../interest/infrastructure/entity/interest.entity';
-import { TechStack } from '../tech-stack/entity/tech-stack.entity';
+import { TechStack } from '../tech-stack/infrastructure/entity/tech-stack.entity';
 
 @Injectable()
 export class EntitySubscriber implements OnApplicationBootstrap {

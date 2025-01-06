@@ -6,7 +6,7 @@ import { Transactional } from 'typeorm-transactional';
 import { Mentor } from '../infrastructure/entity/mentor.entity';
 import { MentorInterest } from '../infrastructure/entity/mentor-interest.entity';
 import { MentorTechStack } from '../infrastructure/entity/mentor-tech-stack.entity';
-import { TechStack } from '../../tech-stack/entity/tech-stack.entity';
+import { TechStack } from '../../tech-stack/infrastructure/entity/tech-stack.entity';
 import { UserAfterAuth } from '../../common/decorater/user.decorator';
 import { UserService } from '../../user/application/user.service';
 import {

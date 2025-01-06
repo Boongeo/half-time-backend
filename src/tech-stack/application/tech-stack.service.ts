@@ -1,8 +1,8 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { TechStack } from './entity/tech-stack.entity';
+import { TechStack } from '../infrastructure/entity/tech-stack.entity';
 import { Repository } from 'typeorm';
-import { AllTechStackResDto } from './dto/res.dto';
+import { AllTechStackResDto } from '../presentation/res.dto';
 
 @Injectable()
 export class TechStackService {

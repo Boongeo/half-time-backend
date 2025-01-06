@@ -1,7 +1,7 @@
 import { Entity, ManyToOne } from 'typeorm';
 import { BaseEntity } from '../../../common/entity/base.entity';
 import { Mentor } from './mentor.entity';
-import { TechStack } from '../../../tech-stack/entity/tech-stack.entity';
+import { TechStack } from '../../../tech-stack/infrastructure/entity/tech-stack.entity';
 
 @Entity()
 export class MentorTechStack extends BaseEntity {

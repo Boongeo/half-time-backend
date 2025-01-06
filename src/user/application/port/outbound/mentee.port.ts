@@ -1,4 +1,4 @@
-import { Mentee } from '../../../../mentee/entity/mentee.entity';
+import { Mentee } from '../../../../mentee/infrastructure/entity/mentee.entity';
 import { User } from '../../../infrastructure/entity/user.entity';
 
 export interface MenteePort {

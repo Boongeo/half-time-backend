@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Role } from '../../user/enums/role.enum';
-import { TechStack } from '../entity/tech-stack.entity';
+import { TechStack } from '../infrastructure/entity/tech-stack.entity';
 
 export class TechStackResDto {
   @ApiProperty()

@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Mentee } from './entity/mentee.entity';
+import { Mentee } from '../infrastructure/entity/mentee.entity';
 import { Repository } from 'typeorm';
-import { MenteeInterest } from './entity/mentee-interest.entity';
-import { Interest } from '../interest/infrastructure/entity/interest.entity';
+import { MenteeInterest } from '../infrastructure/entity/mentee-interest.entity';
+import { Interest } from '../../interest/infrastructure/entity/interest.entity';
 import { Transactional } from 'typeorm-transactional';
-import { User } from '../user/infrastructure/entity/user.entity';
+import { User } from '../../user/infrastructure/entity/user.entity';
 
 @Injectable()
 export class MenteeService {
