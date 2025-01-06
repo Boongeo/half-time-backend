@@ -3,8 +3,8 @@ import { PassportStrategy } from '@nestjs/passport';
 import { ConfigService } from '@nestjs/config';
 import { Profile, Strategy } from 'passport-google-oauth20';  // 여기가 변경됨
 import { Provider } from '../enums/provider.enum';
-import { SignupResDto } from '../dto/res.dto';
-import { AuthService } from '../auth.service';
+import { SignupResDto } from '../presentation/res.dto';
+import { AuthService } from '../application/auth.service';
 
 @Injectable()
 export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {

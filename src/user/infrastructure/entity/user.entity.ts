@@ -1,0 +1,32 @@
+import { Column, Entity, OneToMany, OneToOne } from 'typeorm';
+import { BaseEntity } from '../../../common/entity/base.entity';
+import { AccountEntity } from '../../../auth/infrastructure/entity/account.entity';
+import { Mentee } from '../../../mentee/infrastructure/entity/mentee.entity';
+import { Mentor } from '../../../mentor/infrastructure/entity/mentor.entity';
+import { UserRolesEntity } from './user-roles.entity';
+
+@Entity()
+export class User extends BaseEntity {
+  @Column({ nullable: true })
+  profileImage?: string;
+
+  @Column({ nullable: true, unique: true })
+  nickname: string;
+
+  @OneToOne(() => AccountEntity, (account) => account.user)
+  account: AccountEntity;
+
+  @OneToOne(() => Mentee, (mentee) => mentee.user)
+  mentee: Mentee;
+
+  @OneToOne(() => Mentor, (mentor) => mentor.user)
+  mentor: Mentor;
+
+  @OneToMany(() => UserRolesEntity, (userRoles) => userRoles.user)
+  userRoles: UserRolesEntity[];
+
+  setMentee(mentee: Mentee) {
+    this.mentee = mentee;
+    mentee.user = this;
+  }
+}

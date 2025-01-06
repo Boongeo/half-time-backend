@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Board } from '../entity/board.entity';
+import { BoardEntity } from '../entity/board.entity';
 
 export class BoardResDto {
   constructor(partial: Partial<BoardResDto>) {
@@ -15,7 +15,7 @@ export class BoardResDto {
   @ApiProperty({ required: true })
   body: string;
 
-  static toDto(board: Board) {
+  static toDto(board: BoardEntity) {
     return new BoardResDto({
       id: board.id,
       title: board.title,
