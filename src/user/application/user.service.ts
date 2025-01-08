@@ -16,6 +16,7 @@ import { RoleEntity } from '../infrastructure/entity/roles.entity';
 import { Role } from '../enums/role.enum';
 import { UserRolesEntity } from '../infrastructure/entity/user-roles.entity';
 import { MenteePort } from './port/outbound/mentee.port';
+import { MenteeService } from '../../mentee/application/mentee.service';
 
 @Injectable()
 export class UserService {
@@ -28,8 +29,8 @@ export class UserService {
     private readonly roleRepository: Repository<RoleEntity>,
     @InjectRepository(UserRolesEntity)
     private readonly userRolesRepository: Repository<UserRolesEntity>,
-    @Inject('MenteePort')
-    private readonly menteePort: MenteePort,
+    @Inject()
+    private readonly menteeService: MenteeService,
   ) {}
 
   async findUserById(id: string) {
@@ -49,7 +50,7 @@ export class UserService {
     }
     user.nickname = nickname;
 
-    user.mentee = await this.menteePort.createProfile(
+    user.mentee = await this.menteeService.createMenteeProfile(
       user,
       interestNames,
       introduction,
